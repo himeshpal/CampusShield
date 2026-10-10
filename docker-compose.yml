@@ -1,0 +1,153 @@
+name: campusshield
+
+# Two networks:
+#  app_net - the platform itself (db, backend, n8n). Ports published to localhost only.
+#  lab_net - the simulated campus subnet 172.25.0.0/24. "internal" = no route to the
+#            internet or your Wi-Fi, so the deliberately vulnerable targets stay isolated.
+# The backend is attached to both: it is the only thing that can scan the lab.
+# Lab MAC addresses are pinned (real vendor prefixes) so asset matching by MAC survives
+# container re-creation, and nmap reports a believable manufacturer for each device.
+networks:
+  app_net:
+  lab_net:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
+          gateway: 172.25.0.1
+
+volumes:
+  pg_data:
+  n8n_data:
+
+x-lab-defaults: &lab
+  restart: unless-stopped
+  mem_limit: 128m
+
+services:
+  # ---------------------------------------------------------------- platform
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks: [app_net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SCANNER_SELF_IP: 172.25.0.5
+    # raw sockets for SYN scan, OS detection and ARP discovery
+    cap_add: [NET_RAW, NET_ADMIN]
+    volumes:
+      - ./backend/app:/srv/app
+      - ./backend/tests:/srv/tests
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      app_net:
+      lab_net:
+        ipv4_address: 172.25.0.5
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Optional until Phase 7 - only starts with: docker compose --profile automation up -d
+  # (or: .\scripts\stack.ps1 up -Automation). Saves ~300-500 MB RAM while not needed.
+  n8n:
+    image: n8nio/n8n:2.42.6
+    profiles: [automation]
+    restart: unless-stopped
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_SECURE_COOKIE: "false"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      GENERIC_TIMEZONE: Asia/Kolkata
+      TZ: Asia/Kolkata
+      CAMPUSSHIELD_API: http://backend:8000
+      SERVICE_API_KEY: ${SERVICE_API_KEY}
+      N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n:/workflows
+    ports:
+      - "127.0.0.1:5678:5678"
+    networks: [app_net]
+
+  # ---------------------------------------------------------------- campus lab
+  # .10  ERP portal              - registered, business critical
+  erp-server:
+    <<: *lab
+    build: ./lab/erp-server
+    hostname: erp-server
+    networks:
+      lab_net: { ipv4_address: 172.25.0.10, mac_address: "3c:d9:2b:10:00:10" }
+
+  # .11  Dept website on Apache 2.4.49 (CVE-2021-41773) - registered, critical risk
+  web-apache:
+    <<: *lab
+    build: ./lab/web-apache
+    hostname: web-apache
+    networks:
+      lab_net: { ipv4_address: 172.25.0.11, mac_address: "3c:d9:2b:10:00:11" }
+
+  # .12  Old MySQL 5.7 server, 3306 exposed - registered, high risk
+  db-server:
+    <<: *lab
+    image: mysql:5.7
+    hostname: db-server
+    mem_limit: 384m
+    command: ["--performance-schema=OFF", "--innodb-buffer-pool-size=16M"]
+    environment:
+      MYSQL_ROOT_PASSWORD: labroot
+      MYSQL_DATABASE: student_records
+    networks:
+      lab_net: { ipv4_address: 172.25.0.12, mac_address: "3c:d9:2b:10:00:12" }
+
+  # .20  Computer-lab desktop with anonymous FTP + SSH - registered, high risk
+  #      (Telnet is switched on live by scripts/demo.ps1 to trigger a change alert)
+  lab-pc-01:
+    <<: *lab
+    build: ./lab/lab-pc
+    hostname: lab-pc-01
+    networks:
+      lab_net: { ipv4_address: 172.25.0.20, mac_address: "18:db:f2:20:00:20" }
+
+  # .30  Wi-Fi access point admin (SSH + HTTP) - registered, medium risk
+  wifi-ap:
+    <<: *lab
+    build: ./lab/wifi-ap
+    hostname: wifi-ap-block-a
+    networks:
+      lab_net: { ipv4_address: 172.25.0.30, mac_address: "24:a4:3c:30:00:30" }
+
+  # .40  CCTV IP camera (RTSP + HTTP + Telnet) - registered, medium/high risk
+  cctv-cam:
+    <<: *lab
+    build: ./lab/cctv-cam
+    hostname: cctv-gate-01
+    networks:
+      lab_net: { ipv4_address: 172.25.0.40, mac_address: "44:19:b6:40:00:40" }
+
+  # .66  Rogue device nobody registered (Redis + web panel) - unregistered
+  mystery-device:
+    <<: *lab
+    build: ./lab/mystery-device
+    hostname: unknown
+    networks:
+      lab_net: { ipv4_address: 172.25.0.66, mac_address: "b8:27:eb:66:00:66" }

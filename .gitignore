@@ -1,0 +1,28 @@
+# secrets
+.env
+*.local
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+backend/data/
+backend/reports/
+
+# node
+node_modules/
+.next/
+out/
+frontend/test-results/
+frontend/playwright-report/
+
+# os / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
