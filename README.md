@@ -35,12 +35,32 @@ cd frontend; npm install; npm run dev
 
 When you are done: `.\scripts\stack.ps1 down` (stops containers, shuts Docker/WSL to free RAM; data is kept).
 
+### Accounts
+
+Created on first start (change them in `.env` before a real deployment):
+
+| Role | Email | Password | Can |
+|---|---|---|---|
+| Admin | admin@campusshield.local | Admin@123 | everything, incl. user management |
+| Auditor | auditor@campusshield.local | Auditor@123 | read-only |
+
+Five failed sign-ins for one email lock it for 15 minutes. Every sign-in and change is
+written to the audit log (Settings → Audit log).
+
 ## Tests
 
 ```powershell
-docker compose exec backend pytest            # all backend tests, incl. live lab checks
-docker compose exec backend pytest -m "not lab"  # unit/API tests only
+# backend: unit + API tests (in-memory SQLite) and live lab checks
+docker compose exec backend pytest
+docker compose exec backend pytest -m "not lab"   # skip the live lab checks
+
+# frontend: browser end-to-end tests against the running stack
+cd frontend; npm run test:e2e
 ```
+
+Database schema changes go through Alembic:
+`docker compose exec backend alembic revision --autogenerate -m "describe change"`,
+applied automatically when the backend starts.
 
 ## Lab network (172.25.0.0/24, no internet access)
 

@@ -54,8 +54,7 @@ services:
     # raw sockets for SYN scan, OS detection and ARP discovery
     cap_add: [NET_RAW, NET_ADMIN]
     volumes:
-      - ./backend/app:/srv/app
-      - ./backend/tests:/srv/tests
+      - ./backend:/srv
     ports:
       - "127.0.0.1:8000:8000"
     networks:

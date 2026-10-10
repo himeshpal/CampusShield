@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# non-secret dev flags only (demo account hints on the login page)
+!.env.development
 
 # vercel
 .vercel

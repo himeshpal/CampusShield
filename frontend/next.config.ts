@@ -6,6 +6,7 @@ const API_ORIGIN = process.env.API_ORIGIN ?? "http://127.0.0.1:8000";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  devIndicators: false, // the floating "N" badge covers the sidebar user menu in demos
   partialPrefetching: true,
   turbopack: {
     rules: {

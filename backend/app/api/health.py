@@ -1,16 +1,15 @@
 import shutil
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from app.core.db import get_db
+from app.api.deps import DbSession
 
 router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
-def health(db: Session = Depends(get_db)) -> dict:
+def health(db: DbSession) -> dict:
     try:
         db.execute(text("SELECT 1"))
         database = "ok"
