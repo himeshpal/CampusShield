@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { MatchBadge } from "@/components/assets/asset-badges";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { PROFILE_LABELS, ScanStatusBadge } from "@/components/scans/scan-status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -133,8 +134,19 @@ export function ScanDetailView() {
           <CardHeader>
             <CardTitle>Discovered hosts</CardTitle>
             <CardDescription>
-              {scan.hosts.length} live hosts. Matching against the asset inventory arrives in the
-              next phase.
+              {scan.hosts.length} live hosts · {scan.matched} matched to the inventory
+              {scan.new_devices > 0 && (
+                <span className="font-medium text-risk-high">
+                  {" "}
+                  · {scan.new_devices} new {scan.new_devices === 1 ? "device" : "devices"}
+                </span>
+              )}
+              {scan.ip_conflicts > 0 && (
+                <span className="font-medium text-risk-critical">
+                  {" "}
+                  · {scan.ip_conflicts} IP {scan.ip_conflicts === 1 ? "conflict" : "conflicts"}
+                </span>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -188,6 +200,33 @@ function CommandCard({ command }: { command: string }) {
   );
 }
 
+/** Which inventory record this host was matched to (or that it is a new device). */
+function HostAssetLine({ host }: { host: ScanHost }) {
+  if (!host.asset) return null;
+  const isNew = host.match_method === "new" || host.match_method === "ip_conflict";
+  const unregistered = host.asset.status === "unregistered";
+  return (
+    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+      <Link
+        href={`/assets/${host.asset.id}`}
+        className={cn(
+          "text-xs font-medium hover:underline",
+          unregistered ? "text-risk-high" : "text-primary",
+        )}
+      >
+        {host.asset.asset_tag}
+        {host.asset.name ? ` · ${host.asset.name}` : unregistered ? " · Unregistered" : ""}
+      </Link>
+      {isNew && host.match_method && <MatchBadge method={host.match_method} />}
+      {!isNew && unregistered && (
+        <Badge variant="outline" className="border-risk-high/40 font-normal text-risk-high">
+          Still unregistered
+        </Badge>
+      )}
+    </div>
+  );
+}
+
 function HostRow({ host }: { host: ScanHost }) {
   const [open, setOpen] = useState(false);
   const scripts = host.ports.flatMap((p) =>
@@ -196,13 +235,9 @@ function HostRow({ host }: { host: ScanHost }) {
 
   return (
     <div className="rounded-lg border">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full flex-col gap-3 p-4 text-left transition-colors hover:bg-muted/40 sm:flex-row sm:items-center"
-        aria-expanded={open}
-      >
-        <div className="min-w-0 sm:w-72">
+      {/* identity block and toggle are siblings: the asset link must not sit inside a button */}
+      <div className="flex flex-col sm:flex-row sm:items-center">
+        <div className="min-w-0 px-4 pt-4 sm:w-72 sm:shrink-0 sm:py-4">
           <p className="font-mono text-sm font-semibold">{host.ip_address}</p>
           <p className="truncate text-xs text-muted-foreground" title={host.mac_vendor ?? undefined}>
             {host.mac_vendor ?? "Unknown vendor"}
@@ -210,7 +245,15 @@ function HostRow({ host }: { host: ScanHost }) {
           {host.mac_address && (
             <p className="font-mono text-[11px] text-muted-foreground/80">{host.mac_address}</p>
           )}
+          <HostAssetLine host={host} />
         </div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex flex-1 flex-col gap-3 self-stretch p-4 text-left transition-colors hover:bg-muted/40 sm:flex-row sm:items-center"
+        aria-expanded={open}
+        aria-label={`${open ? "Hide" : "Show"} port details for ${host.ip_address}`}
+      >
         <div className="flex flex-1 flex-wrap gap-1.5">
           {host.ports.length === 0 && (
             <span className="text-xs text-muted-foreground">No open ports in this profile</span>
@@ -232,6 +275,7 @@ function HostRow({ host }: { host: ScanHost }) {
           className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")}
         />
       </button>
+      </div>
 
       {open && (
         <div className="border-t px-4 pb-4">

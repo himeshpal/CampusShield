@@ -33,6 +33,7 @@ const FILTERS = [
   { value: "auth.", label: "Sign-ins" },
   { value: "user.", label: "User changes" },
   { value: "scan.", label: "Scans" },
+  { value: "asset.", label: "Assets" },
 ];
 
 export function AuditLogPanel() {

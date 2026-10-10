@@ -26,6 +26,7 @@ class Asset(TimestampMixin, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     asset_tag: Mapped[str] = mapped_column(String(20), unique=True)  # CS-0001
+    name: Mapped[str | None] = mapped_column(String(120))  # "ERP Portal Server"
     hostname: Mapped[str | None] = mapped_column(String(255))
     ip_address: Mapped[str | None] = mapped_column(String(45), index=True)
     mac_address: Mapped[str | None] = mapped_column(String(17), index=True)

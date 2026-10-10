@@ -60,6 +60,20 @@ Redis (6379) and RTSP (8554). Only targets inside `AUTHORIZED_SUBNETS` are accep
 scanner's own address and `SCAN_EXCLUDE` are never scanned. One scan runs at a time,
 with live progress (nmap runs on a pseudo-terminal so it reports its own percentages).
 
+## Inventory and matching
+
+After every scan each live host is tied to a persistent asset record:
+
+1. **MAC address** match (survives DHCP; the asset's IP is updated)
+2. **IP address** match, only when no MAC contradicts it
+3. Same IP but a **different MAC** → `ip_conflict`: treated as a new device
+4. No match → a new asset with status **unregistered** (never silently dropped)
+
+Unregistered devices keep their history (first/last seen, every observation) until an
+admin registers or retires them. Each asset has an expected port baseline; open ports
+outside it are highlighted (input for risk scoring). With `DEMO_DATA=true` the six
+legitimate lab devices are pre-registered, so the Raspberry Pi is the one unknown device.
+
 ## Tests
 
 ```powershell

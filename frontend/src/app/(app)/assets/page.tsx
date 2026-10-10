@@ -1,22 +1,17 @@
-import { Server } from "lucide-react";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { ComingSoon } from "@/components/coming-soon";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import { AssetsView } from "./assets-view";
 
 export const metadata: Metadata = { title: "Assets" };
 
-export default function Page() {
+// AssetsView reads ?status= from the URL, so it streams in behind Suspense.
+export default function AssetsPage() {
   return (
-    <ComingSoon
-      title="Assets"
-      description="Persistent inventory of every campus IT device."
-      icon={Server}
-      phase={3}
-      points={[
-        "Searchable inventory with department, owner and criticality",
-        "Automatic matching of scan results by MAC and IP",
-        "Unregistered devices flagged and registered in one click",
-      ]}
-    />
+    <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
+      <AssetsView />
+    </Suspense>
   );
 }

@@ -48,6 +48,12 @@ const ACTIONS: Record<string, string> = {
   "scan.failed": "Network scan failed",
   "scan.cancelled": "Network scan cancelled",
   "scan.cancel_requested": "Cancelled a network scan",
+  "asset.discovered": "Unregistered device discovered",
+  "asset.seeded": "Demo asset registered",
+  "asset.created": "Added an asset",
+  "asset.updated": "Updated an asset",
+  "asset.registered": "Registered a device",
+  "asset.retired": "Retired an asset",
 };
 
 /** "1m 05s" style duration between two ISO timestamps (end defaults to now). */

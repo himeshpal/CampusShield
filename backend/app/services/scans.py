@@ -17,6 +17,7 @@ from app.models import Scan, ScanHost, ScanPort, User
 from app.models.base import utcnow
 from app.models.scan import ACTIVE_STATUSES
 from app.services import audit
+from app.services.matching import match_scan
 from app.services.scanner.parser import ParsedScan, parse_nmap_xml
 from app.services.scanner.profiles import PROFILES, display_command
 from app.services.scanner.runner import ScanCancelled, run_nmap
@@ -120,6 +121,8 @@ def execute_scan(scan_id: int) -> None:
             )
             result = parse_nmap_xml(xml)
             _store_results(db, scan, result)
+            db.flush()
+            match_scan(db, scan)  # link hosts to assets, flag unregistered devices
             _finish(db, scan, "completed", phase="Completed")
         except ScanCancelled:
             _finish(db, scan, "cancelled", phase="Cancelled")

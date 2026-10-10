@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.security import hash_password
-from app.models import ChecklistItem, User
+from app.models import Asset, ChecklistItem, User
 from app.services import audit
 
 # Controls an unauthenticated network scan cannot verify (doc section 1.2, "coverage gap").
@@ -66,3 +66,74 @@ def seed(db: Session) -> None:
             db.add(ChecklistItem(key=key, label=label, description=description, sort_order=order))
 
     db.commit()
+
+
+# The legitimate devices of the lab network (docker-compose.yml). The Raspberry Pi at
+# .66 is deliberately absent: discovering it is the point of the demo.
+# Criticality criteria are data sensitivity, service dependency, users affected and
+# replaceability, each 1 (low) .. 3 (high).
+DEMO_ASSETS = [
+    dict(
+        asset_tag="CS-0001", name="ERP Portal Server", hostname="erp.campus.local",
+        asset_type="server", ip_address="172.25.0.10", mac_address="3c:d9:2b:10:00:10",
+        department="Administration", location="Server Room, Admin Block", owner="IT Cell",
+        os_name="Linux", criteria=(3, 3, 3, 2), baseline_ports=[80, 443],
+    ),
+    dict(
+        asset_tag="CS-0002", name="Department Website", hostname="cse.campus.local",
+        asset_type="server", ip_address="172.25.0.11", mac_address="3c:d9:2b:10:00:11",
+        department="Computer Engineering", location="Server Room, Admin Block",
+        owner="CSE Web Team", os_name="Linux", criteria=(2, 2, 2, 1), baseline_ports=[80],
+    ),
+    dict(
+        asset_tag="CS-0003", name="Student Records Database", hostname="db.campus.local",
+        asset_type="server", ip_address="172.25.0.12", mac_address="3c:d9:2b:10:00:12",
+        department="Examination Cell", location="Server Room, Admin Block", owner="IT Cell",
+        os_name="Linux", criteria=(3, 3, 2, 2), baseline_ports=[3306],
+    ),
+    dict(
+        asset_tag="CS-0004", name="Lab 3 Workstation 01", hostname="lab3-pc01",
+        asset_type="workstation", ip_address="172.25.0.20", mac_address="18:db:f2:20:00:20",
+        department="Computer Engineering", location="Computer Lab 3", owner="Lab Assistant",
+        os_name="Linux", criteria=(1, 1, 1, 1), baseline_ports=[22],
+    ),
+    dict(
+        asset_tag="CS-0005", name="Wi-Fi AP Block A", hostname="ap-block-a",
+        asset_type="wifi_ap", ip_address="172.25.0.30", mac_address="24:a4:3c:30:00:30",
+        department="IT Cell", location="Block A, 2nd floor", owner="Network Admin",
+        os_name=None, criteria=(1, 2, 3, 1), baseline_ports=[22, 80],
+    ),
+    dict(
+        asset_tag="CS-0006", name="CCTV Main Gate", hostname="cctv-gate-01",
+        asset_type="iot_cctv", ip_address="172.25.0.40", mac_address="44:19:b6:40:00:40",
+        department="Security Office", location="Main Gate", owner="Security Supervisor",
+        os_name=None, criteria=(2, 2, 1, 1), baseline_ports=[80, 554],
+    ),
+]  # fmt: skip
+
+
+def seed_demo_assets(db: Session) -> int:
+    """Register the lab's legitimate devices once. Returns how many were added."""
+    added = 0
+    for spec in DEMO_ASSETS:
+        spec = dict(spec)
+        if db.scalar(select(Asset.id).where(Asset.asset_tag == spec["asset_tag"])):
+            continue
+        sensitivity, dependency, users, replaceability = spec.pop("criteria")
+        asset = Asset(
+            **spec,
+            status="registered",
+            data_sensitivity=sensitivity,
+            service_dependency=dependency,
+            users_affected=users,
+            replaceability=replaceability,
+        )
+        db.add(asset)
+        db.flush()
+        audit.record(
+            db, "asset.seeded", entity_type="asset", entity_id=asset.id,
+            details={"asset_tag": asset.asset_tag},
+        )  # fmt: skip
+        added += 1
+    db.commit()
+    return added

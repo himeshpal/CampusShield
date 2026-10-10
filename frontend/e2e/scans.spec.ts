@@ -33,7 +33,7 @@ test("admin runs a standard scan and inspects the results", async ({ page }) => 
   const row = page.getByRole("row").nth(1);
   await expect(row).toContainText("Completed");
   await expect(row).toContainText("172.25.0.0/24");
-  await row.click();
+  await row.getByRole("link").click();
   await expect(page).toHaveURL(/\/scans\/\d+$/);
 
   await expect(page.getByText("7 live hosts")).toBeVisible();

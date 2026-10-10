@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     auditor_email: str = "auditor@campusshield.local"
     auditor_password: str = "Auditor@123"
     auditor_name: str = "Security Auditor"
+    # register the 6 legitimate lab devices on first start (off for a real campus)
+    demo_data: bool = False
 
     # scanning
     authorized_subnets: str = "172.25.0.0/24"

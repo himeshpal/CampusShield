@@ -45,6 +45,7 @@ export function useActiveScan() {
       queryClient.invalidateQueries({ queryKey: ["scans", "list"] });
       queryClient.invalidateQueries({ queryKey: ["scans", "detail", before.id] });
       queryClient.invalidateQueries({ queryKey: ["audit-log"] });
+      queryClient.invalidateQueries({ queryKey: ["assets"] }); // matching updated the inventory
       api<Scan>(`/scans/${before.id}`).then((scan) => {
         if (scan.status === "completed") {
           toast.success(`Scan #${scan.id} completed`, {

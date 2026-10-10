@@ -4,6 +4,7 @@ from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Tex
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
+from app.models.asset import Asset
 from app.models.base import utcnow
 from app.models.user import User
 
@@ -53,8 +54,11 @@ class ScanHost(Base):
     os_guess: Mapped[str | None] = mapped_column(String(255))
     state: Mapped[str] = mapped_column(String(20), default="up")
     is_registered: Mapped[bool] = mapped_column(Boolean, default=False)
+    # how this observation was tied to an asset: mac | ip | new | ip_conflict
+    match_method: Mapped[str | None] = mapped_column(String(20))
 
     scan: Mapped[Scan] = relationship(back_populates="hosts")
+    asset: Mapped[Asset | None] = relationship()
     ports: Mapped[list["ScanPort"]] = relationship(  # noqa: UP037 - defined below
         back_populates="host", cascade="all, delete-orphan", order_by="ScanPort.port"
     )

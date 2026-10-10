@@ -3,11 +3,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api import audit_log, auth, health, scans, users
+from app.api import assets, audit_log, auth, health, scans, users
 from app.core.config import get_settings
 from app.core.db import SessionLocal
+from app.services.matching import backfill_unmatched_scans
 from app.services.scans import recover_interrupted
-from app.services.seed import seed
+from app.services.seed import seed, seed_demo_assets
 
 settings = get_settings()
 log = logging.getLogger("uvicorn.error")
@@ -18,12 +19,23 @@ async def lifespan(_: FastAPI):
     # Schema is created by `alembic upgrade head` before the server starts.
     with SessionLocal() as db:
         seed(db)
+        if settings.demo_data and (added := seed_demo_assets(db)):
+            log.info("Registered %d demo lab assets", added)
         if interrupted := recover_interrupted(db):
             log.warning("Marked %d interrupted scan(s) as failed", interrupted)
+        if backfilled := backfill_unmatched_scans(db):
+            log.info("Matched %d earlier scan(s) against the inventory", backfilled)
     yield
 
 
-app = FastAPI(title=f"{settings.app_name} API", version="0.3.0", lifespan=lifespan)
+app = FastAPI(title=f"{settings.app_name} API", version="0.4.0", lifespan=lifespan)
 
-for router in (health.router, auth.router, users.router, audit_log.router, scans.router):
+for router in (
+    health.router,
+    auth.router,
+    users.router,
+    audit_log.router,
+    scans.router,
+    assets.router,
+):
     app.include_router(router, prefix="/api/v1")

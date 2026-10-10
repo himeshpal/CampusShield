@@ -58,6 +58,16 @@ class ScanPortOut(BaseModel):
     script_output: dict[str, str]
 
 
+class HostAsset(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    asset_tag: str
+    name: str | None
+    status: str
+    asset_type: str
+
+
 class ScanHostOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -67,8 +77,13 @@ class ScanHostOut(BaseModel):
     mac_vendor: str | None
     hostname: str | None
     os_guess: str | None
+    match_method: str | None  # mac | ip | new | ip_conflict
+    asset: HostAsset | None
     ports: list[ScanPortOut]
 
 
 class ScanDetail(ScanOut):
     hosts: list[ScanHostOut]
+    matched: int = 0
+    new_devices: int = 0
+    ip_conflicts: int = 0

@@ -53,6 +53,8 @@ services:
       SCANNER_SELF_IP: 172.25.0.5
       # the Docker bridge gateway is the host machine, not a campus device
       SCAN_EXCLUDE: 172.25.0.1
+      # pre-register the 6 legitimate lab devices; the Raspberry Pi stays unknown
+      DEMO_DATA: "true"
     # raw sockets for SYN scan, OS detection and ARP discovery
     cap_add: [NET_RAW, NET_ADMIN]
     volumes:

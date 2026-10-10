@@ -20,24 +20,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useAssetSummary } from "@/hooks/use-assets";
 import { useActiveScan, useScanHistory } from "@/hooks/use-scans";
+import { cn } from "@/lib/utils";
 
-// Values arrive with the discovery, inventory and alerting phases.
-const STATS: { label: string; icon: LucideIcon; hint: string; tone?: string }[] = [
-  { label: "Total assets", icon: Server, hint: "Registered campus devices" },
+type StatKey = "assets" | "unregistered" | "critical" | "alerts";
+
+// "critical" and "alerts" get their values in the risk-scoring and alerting phases.
+const STATS: {
+  key: StatKey;
+  label: string;
+  icon: LucideIcon;
+  hint: string;
+  tone?: string;
+  href?: string;
+}[] = [
+  { key: "assets", label: "Total assets", icon: Server, hint: "Registered campus devices", href: "/assets" },
   {
+    key: "unregistered",
     label: "Unregistered devices",
     icon: ShieldAlert,
     hint: "Seen on the network, not in inventory",
     tone: "text-risk-high",
+    href: "/assets?status=unregistered",
   },
   {
+    key: "critical",
     label: "Critical risk",
     icon: ShieldAlert,
     hint: "Assets scoring 75 or above",
     tone: "text-risk-critical",
   },
-  { label: "Open alerts", icon: Bell, hint: "Changes waiting for review" },
+  { key: "alerts", label: "Open alerts", icon: Bell, hint: "Changes waiting for review" },
 ];
 
 type StepKey = "accounts" | "scan" | "inventory" | "checklist" | "report";
@@ -91,10 +105,17 @@ export function DashboardView() {
   const { user } = useCurrentUser();
   const { data: active } = useActiveScan();
   const { data: scans } = useScanHistory();
+  const { data: inventory } = useAssetSummary();
+  const values: Record<StatKey, number | undefined> = {
+    assets: inventory?.registered,
+    unregistered: inventory?.unregistered,
+    critical: undefined,
+    alerts: undefined,
+  };
   const done: Record<StepKey, boolean> = {
     accounts: true,
     scan: !!scans?.some((s) => s.status === "completed"),
-    inventory: false,
+    inventory: !!inventory && inventory.registered > 0 && inventory.unregistered === 0,
     checklist: false,
     report: false,
   };
@@ -125,18 +146,43 @@ export function DashboardView() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {STATS.map(({ label, icon: Icon, hint, tone }) => (
-          <Card key={label} className="gap-3">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardDescription className="font-medium">{label}</CardDescription>
-              <Icon className={`size-4 text-muted-foreground ${tone ?? ""}`} />
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold tracking-tight text-muted-foreground/60">—</p>
-              <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {STATS.map(({ key, label, icon: Icon, hint, tone, href }) => {
+          const value = values[key];
+          const alarming = key === "unregistered" && !!value;
+          const card = (
+            <Card
+              className={cn(
+                "h-full gap-3 transition-colors",
+                href && "hover:border-primary/40",
+                alarming && "border-risk-high/40 bg-risk-high/5",
+              )}
+            >
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardDescription className="font-medium">{label}</CardDescription>
+                <Icon className={cn("size-4 text-muted-foreground", tone)} />
+              </CardHeader>
+              <CardContent>
+                <p
+                  className={cn(
+                    "text-3xl font-semibold tracking-tight tabular-nums",
+                    value === undefined && "text-muted-foreground/60",
+                    alarming && "text-risk-high",
+                  )}
+                >
+                  {value ?? "—"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+              </CardContent>
+            </Card>
+          );
+          return href ? (
+            <Link key={key} href={href} aria-label={`${label}: ${value ?? "unknown"}`}>
+              {card}
+            </Link>
+          ) : (
+            <div key={key}>{card}</div>
+          );
+        })}
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">

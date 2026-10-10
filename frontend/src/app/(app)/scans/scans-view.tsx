@@ -1,6 +1,7 @@
 "use client";
 
 import { Radar } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { PageHeader } from "@/components/page-header";
@@ -92,7 +93,16 @@ export function ScansView() {
                     className="cursor-pointer"
                     onClick={() => router.push(`/scans/${scan.id}`)}
                   >
-                    <TableCell className="font-medium">#{scan.id}</TableCell>
+                    <TableCell className="font-medium">
+                      {/* real link: works before hydration, keyboard and new-tab friendly */}
+                      <Link
+                        href={`/scans/${scan.id}`}
+                        className="hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        #{scan.id}
+                      </Link>
+                    </TableCell>
                     <TableCell className="font-mono text-xs">{scan.target}</TableCell>
                     <TableCell>{PROFILE_LABELS[scan.profile]}</TableCell>
                     <TableCell>

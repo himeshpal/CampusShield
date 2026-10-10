@@ -19,6 +19,10 @@ def _out(scan: Scan, model: type[ScanOut] = ScanOut) -> ScanOut:
     data.requested_by_name = scan.requested_by.full_name if scan.requested_by else None
     data.open_ports = scan.summary.get("open_ports", 0)
     data.command = scan.summary.get("command")
+    if isinstance(data, ScanDetail):
+        data.matched = scan.summary.get("matched", 0)
+        data.new_devices = scan.summary.get("new_devices", 0)
+        data.ip_conflicts = scan.summary.get("ip_conflicts", 0)
     return data
 
 
@@ -81,7 +85,10 @@ def get_scan(scan_id: int, _: CurrentUser, db: DbSession) -> ScanOut:
     scan = db.scalar(
         select(Scan)
         .where(Scan.id == scan_id)
-        .options(selectinload(Scan.hosts).selectinload(ScanHost.ports))
+        .options(
+            selectinload(Scan.hosts).selectinload(ScanHost.ports),
+            selectinload(Scan.hosts).selectinload(ScanHost.asset),
+        )
     )
     if not scan:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Scan not found")

@@ -25,7 +25,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Inventory",
     items: [
-      { title: "Assets", href: "/assets", icon: Server, phase: 3 },
+      { title: "Assets", href: "/assets", icon: Server },
       { title: "Network scans", href: "/scans", icon: Radar },
     ],
   },
