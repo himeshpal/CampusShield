@@ -74,6 +74,28 @@ admin registers or retires them. Each asset has an expected port baseline; open 
 outside it are highlighted (input for risk scoring). With `DEMO_DATA=true` the six
 legitimate lab devices are pre-registered, so the Raspberry Pi is the one unknown device.
 
+## Risk scoring
+
+```
+score = min(100, (exposure + vulnerabilities + drift + controls + inventory) x multiplier)
+```
+
+| Component | Max | From |
+|---|---|---|
+| Network exposure | 40 | weight per reachable service (Telnet 15, RDP/SMB 12, FTP/DBs/Redis 10, plain HTTP 4, ...) |
+| Known vulnerabilities | 40 | CVE matches on product+version (CVSS ≥9 → 30, ≥7 → 20, ≥4 → 10), end-of-life software, NSE findings |
+| Unexpected open ports | 10 | 5 per port outside the asset's baseline |
+| Missing controls | 20 | 4 per checklist control not confirmed |
+| Inventory status | 20 | unregistered device |
+
+The multiplier comes from the asset's criticality (4-12 → 0.8x-1.5x). Bands: Low <25,
+Medium 25-49, High 50-74, Critical ≥75. Every stored score keeps a full breakdown, shown
+as "Why this score" on each asset. The whole model, including the 14-entry CVE
+reference list (CVSS verified against NIST NVD), is defined in
+`backend/app/services/risk/rules.py` and published in Settings → Risk model. Versions
+and NSE findings are carried forward from earlier scans while a port stays open, so a
+quick sweep does not "forget" a known CVE.
+
 ## Tests
 
 ```powershell

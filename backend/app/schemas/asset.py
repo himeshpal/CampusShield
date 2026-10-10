@@ -5,6 +5,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.schemas.risk import RiskPoint
+
 AssetType = Literal[
     "server",
     "workstation",
@@ -157,6 +159,8 @@ class AssetOut(BaseModel):
     criticality_level: str = "low"
     observed_ports: list[ObservedPort] | None = None  # from the latest scan that saw it
     last_scan_id: int | None = None
+    risk_score: float | None = None  # latest; None = not assessed (e.g. retired)
+    risk_band: str | None = None
 
 
 class Observation(BaseModel):
@@ -170,6 +174,8 @@ class Observation(BaseModel):
 
 class AssetDetail(AssetOut):
     observations: list[Observation]
+    risk: dict | None = None  # full explainable breakdown of the latest score
+    risk_history: list[RiskPoint] = []
 
 
 class AssetSummary(BaseModel):

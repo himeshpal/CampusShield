@@ -78,7 +78,7 @@ export function ActivityFeed({ limit = 6 }: { limit?: number }) {
             <div
               className={cn(
                 "flex size-8 shrink-0 items-center justify-center rounded-full",
-                failed ? "bg-risk-critical/10 text-risk-critical" : "bg-muted text-muted-foreground",
+                failed ? "bg-risk-critical/10 text-risk-critical-ink" : "bg-muted text-muted-foreground",
               )}
             >
               <Icon className="size-4" />

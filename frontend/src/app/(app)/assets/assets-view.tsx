@@ -5,13 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDeferredValue, useState } from "react";
 
-import {
-  AssetStatusBadge,
-  AssetTypeLabel,
-  CriticalityBadge,
-} from "@/components/assets/asset-badges";
+import { AssetStatusBadge, AssetTypeLabel } from "@/components/assets/asset-badges";
 import { AssetFormDialog } from "@/components/assets/asset-form-dialog";
 import { PageHeader } from "@/components/page-header";
+import { RiskBadge } from "@/components/risk/risk-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -91,7 +88,7 @@ export function AssetsView() {
 
       {!!summary?.unregistered && status !== "unregistered" && (
         <div className="mb-4 flex flex-col gap-3 rounded-xl border border-risk-high/40 bg-risk-high/5 p-4 sm:flex-row sm:items-center">
-          <AlertTriangle className="size-5 shrink-0 text-risk-high" />
+          <AlertTriangle className="size-5 shrink-0 text-risk-high-ink" />
           <p className="flex-1 text-sm">
             <span className="font-medium">
               {summary.unregistered} unregistered {summary.unregistered === 1 ? "device" : "devices"}
@@ -126,7 +123,7 @@ export function AssetsView() {
                       className={cn(
                         "rounded-full px-1.5 text-xs tabular-nums",
                         tab.value === "unregistered" && counts[tab.value]
-                          ? "bg-risk-high/15 text-risk-high"
+                          ? "bg-risk-high/15 text-risk-high-ink"
                           : "bg-background/60",
                       )}
                     >
@@ -170,7 +167,7 @@ export function AssetsView() {
                 <TableHead>Asset</TableHead>
                 <TableHead>Network</TableHead>
                 <TableHead>Department</TableHead>
-                <TableHead>Criticality</TableHead>
+                <TableHead>Risk</TableHead>
                 <TableHead>Open ports</TableHead>
                 <TableHead>Status</TableHead>
                 {isAdmin && <TableHead className="w-24" />}
@@ -249,7 +246,7 @@ function AssetRow({
             onClick={(e) => e.stopPropagation()}
           >
             {unregistered && !asset.name ? (
-              <span className="text-risk-high">Unknown device</span>
+              <span className="text-risk-high-ink">Unknown device</span>
             ) : (
               displayName(asset)
             )}
@@ -275,7 +272,7 @@ function AssetRow({
         </div>
       </TableCell>
       <TableCell>
-        <CriticalityBadge level={asset.criticality_level} total={asset.criticality} />
+        <RiskBadge score={asset.risk_score} band={asset.risk_band} />
       </TableCell>
       <TableCell>
         <div className="flex max-w-36 flex-wrap gap-1">
@@ -288,7 +285,7 @@ function AssetRow({
                 variant={unexpected ? "outline" : "secondary"}
                 className={cn(
                   "font-mono font-normal",
-                  unexpected && "border-risk-high/50 bg-risk-high/10 text-risk-high",
+                  unexpected && "border-risk-high/50 bg-risk-high/10 text-risk-high-ink",
                 )}
                 title={unexpected ? "Not in the expected baseline" : p.service ?? undefined}
               >

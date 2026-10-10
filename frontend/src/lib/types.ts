@@ -89,6 +89,9 @@ export type ScanHost = {
     asset_type: AssetType;
   } | null;
   ports: ScanPort[];
+  findings: Finding[];
+  risk_score: number | null;
+  risk_band: RiskBand | null;
 };
 
 export type ScanDetail = Scan & {
@@ -150,6 +153,8 @@ export type Asset = Omit<AssetFields, "name"> & {
   criticality_level: CriticalityLevel;
   observed_ports: ObservedPort[] | null;
   last_scan_id: number | null;
+  risk_score: number | null;
+  risk_band: RiskBand | null;
 };
 
 export type Observation = {
@@ -161,7 +166,78 @@ export type Observation = {
   ports: ObservedPort[];
 };
 
-export type AssetDetail = Asset & { observations: Observation[] };
+export type AssetDetail = Asset & {
+  observations: Observation[];
+  risk: RiskBreakdown | null;
+  risk_history: RiskPoint[];
+};
+
+export type RiskBand = "low" | "medium" | "high" | "critical";
+
+export type RiskItem = {
+  kind: string;
+  label: string;
+  points: number;
+  severity: string;
+  port?: number;
+  cve_id?: string;
+  detail?: string;
+};
+
+export type RiskComponent = {
+  key: "exposure" | "vulnerabilities" | "drift" | "controls" | "inventory";
+  label: string;
+  points: number;
+  uncapped: number;
+  cap: number;
+  items: RiskItem[];
+};
+
+export type RiskBreakdown = {
+  model_version: number;
+  score: number;
+  band: RiskBand;
+  raw: number;
+  criticality: number;
+  multiplier: number;
+  formula: string;
+  components: RiskComponent[];
+};
+
+export type RiskPoint = { score: number; band: RiskBand; computed_at: string; scan_id: number | null };
+
+export type Finding = {
+  kind: string;
+  severity: string;
+  title: string;
+  detail: string | null;
+  port: number | null;
+  cve_id: string | null;
+  points: number;
+};
+
+export type RiskSummary = {
+  bands: Record<RiskBand, number>;
+  assessed: number;
+  average: number | null;
+  top: { id: number; asset_tag: string; name: string | null; status: AssetStatus; score: number; band: RiskBand }[];
+  drivers: { key: string; label: string; points: number; share: number }[];
+};
+
+export type RiskModel = {
+  version: number;
+  formula: string;
+  components: { key: string; label: string; cap: number; rule?: string }[];
+  multiplier: string;
+  bands: { band: RiskBand; from: number }[];
+  cvss_points: { cvss_from: number; points: number }[];
+  service_weights: { service: string; points: number; label: string }[];
+  other_port_points: number;
+  cves: { cve_id: string; product: string; version_spec: string; cvss: number; severity: string; summary: string }[];
+  end_of_life: { product: string; version_spec: string; points: number; title: string }[];
+  script_findings: { script: string; points: number; title: string }[];
+  limitations: string[];
+};
 
 export type AssetSummary = {
   registered: number;

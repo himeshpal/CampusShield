@@ -59,6 +59,9 @@ class ScanHost(Base):
 
     scan: Mapped[Scan] = relationship(back_populates="hosts")
     asset: Mapped[Asset | None] = relationship()
+    findings: Mapped[list["Finding"]] = relationship(  # noqa: F821, UP037 - risk.py
+        viewonly=True, order_by="Finding.points.desc()"
+    )
     ports: Mapped[list["ScanPort"]] = relationship(  # noqa: UP037 - defined below
         back_populates="host", cascade="all, delete-orphan", order_by="ScanPort.port"
     )

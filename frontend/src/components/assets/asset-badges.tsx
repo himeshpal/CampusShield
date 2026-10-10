@@ -7,7 +7,7 @@ const STATUS: Record<AssetStatus, { label: string; className: string; dot: strin
   registered: { label: "Registered", className: "", dot: "bg-primary" },
   unregistered: {
     label: "Unregistered",
-    className: "border-risk-high/40 bg-risk-high/10 text-risk-high",
+    className: "border-risk-high/40 bg-risk-high/10 text-risk-high-ink",
     dot: "bg-risk-high animate-pulse",
   },
   retired: { label: "Retired", className: "text-muted-foreground", dot: "bg-muted-foreground" },
@@ -23,17 +23,27 @@ export function AssetStatusBadge({ status }: { status: AssetStatus }) {
   );
 }
 
-const CRITICALITY: Record<CriticalityLevel, string> = {
-  low: "text-muted-foreground",
-  medium: "border-risk-medium/40 text-risk-medium",
-  high: "border-risk-critical/40 text-risk-critical",
-};
+const LEVEL_BARS: Record<CriticalityLevel, number> = { low: 1, medium: 2, high: 3 };
 
+/** Importance of the asset (not its risk), so it stays neutral: risk colours are
+ *  reserved for risk bands. Three small bars show the level. */
 export function CriticalityBadge({ level, total }: { level: CriticalityLevel; total: number }) {
   return (
-    <Badge variant="outline" className={cn("gap-1 font-normal capitalize", CRITICALITY[level])}>
-      <span className="font-medium">{level}</span>
-      <span className="tabular-nums opacity-70">{total}/12</span>
+    <Badge variant="outline" className="gap-1.5 font-normal" title={`Criticality ${total}/12`}>
+      <span className="flex items-end gap-px" aria-hidden>
+        {[1, 2, 3].map((bar) => (
+          <span
+            key={bar}
+            className={cn(
+              "w-1 rounded-[1px]",
+              bar === 1 ? "h-1.5" : bar === 2 ? "h-2" : "h-2.5",
+              bar <= LEVEL_BARS[level] ? "bg-foreground/70" : "bg-foreground/15",
+            )}
+          />
+        ))}
+      </span>
+      <span className="font-medium capitalize">{level}</span>
+      <span className="tabular-nums text-muted-foreground">{total}/12</span>
     </Badge>
   );
 }
@@ -51,10 +61,10 @@ export function AssetTypeLabel({ type, className }: { type: AssetType; className
 const MATCH: Record<MatchMethod, { label: string; className: string }> = {
   mac: { label: "Matched by MAC", className: "text-muted-foreground" },
   ip: { label: "Matched by IP", className: "text-muted-foreground" },
-  new: { label: "New device", className: "border-risk-high/40 bg-risk-high/10 text-risk-high" },
+  new: { label: "New device", className: "border-risk-high/40 bg-risk-high/10 text-risk-high-ink" },
   ip_conflict: {
     label: "IP conflict",
-    className: "border-risk-critical/40 bg-risk-critical/10 text-risk-critical",
+    className: "border-risk-critical/40 bg-risk-critical/10 text-risk-critical-ink",
   },
 };
 

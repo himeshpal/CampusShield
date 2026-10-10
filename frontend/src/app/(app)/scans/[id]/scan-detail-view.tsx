@@ -19,6 +19,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { MatchBadge } from "@/components/assets/asset-badges";
+import { RiskBadge } from "@/components/risk/risk-badge";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { PROFILE_LABELS, ScanStatusBadge } from "@/components/scans/scan-status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +101,7 @@ export function ScanDetailView() {
 
       {scan?.status === "failed" && (
         <div className="mb-6 flex gap-3 rounded-xl border border-risk-critical/30 bg-risk-critical/5 p-4 text-sm">
-          <AlertTriangle className="size-5 shrink-0 text-risk-critical" />
+          <AlertTriangle className="size-5 shrink-0 text-risk-critical-ink" />
           <div>
             <p className="font-medium">The scan did not complete</p>
             <p className="mt-0.5 break-all text-muted-foreground">{scan.error}</p>
@@ -136,13 +137,13 @@ export function ScanDetailView() {
             <CardDescription>
               {scan.hosts.length} live hosts · {scan.matched} matched to the inventory
               {scan.new_devices > 0 && (
-                <span className="font-medium text-risk-high">
+                <span className="font-medium text-risk-high-ink">
                   {" "}
                   · {scan.new_devices} new {scan.new_devices === 1 ? "device" : "devices"}
                 </span>
               )}
               {scan.ip_conflicts > 0 && (
-                <span className="font-medium text-risk-critical">
+                <span className="font-medium text-risk-critical-ink">
                   {" "}
                   · {scan.ip_conflicts} IP {scan.ip_conflicts === 1 ? "conflict" : "conflicts"}
                 </span>
@@ -200,6 +201,23 @@ function CommandCard({ command }: { command: string }) {
   );
 }
 
+const SEVERITY: Record<string, { label: string; dot: string }> = {
+  critical: { label: "Critical", dot: "bg-risk-critical" },
+  high: { label: "High", dot: "bg-risk-high" },
+  medium: { label: "Medium", dot: "bg-risk-medium" },
+  low: { label: "Low", dot: "bg-muted-foreground/50" }, // not green: low severity is not "fine"
+};
+
+function SeverityTag({ severity }: { severity: string }) {
+  const s = SEVERITY[severity] ?? SEVERITY.low!;
+  return (
+    <span className="mt-0.5 inline-flex w-18 shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+      <span className={cn("size-2 rounded-full", s.dot)} aria-hidden />
+      {s.label}
+    </span>
+  );
+}
+
 /** Which inventory record this host was matched to (or that it is a new device). */
 function HostAssetLine({ host }: { host: ScanHost }) {
   if (!host.asset) return null;
@@ -211,7 +229,7 @@ function HostAssetLine({ host }: { host: ScanHost }) {
         href={`/assets/${host.asset.id}`}
         className={cn(
           "text-xs font-medium hover:underline",
-          unregistered ? "text-risk-high" : "text-primary",
+          unregistered ? "text-risk-high-ink" : "text-primary",
         )}
       >
         {host.asset.asset_tag}
@@ -219,7 +237,7 @@ function HostAssetLine({ host }: { host: ScanHost }) {
       </Link>
       {isNew && host.match_method && <MatchBadge method={host.match_method} />}
       {!isNew && unregistered && (
-        <Badge variant="outline" className="border-risk-high/40 font-normal text-risk-high">
+        <Badge variant="outline" className="border-risk-high/40 font-normal text-risk-high-ink">
           Still unregistered
         </Badge>
       )}
@@ -265,6 +283,9 @@ function HostRow({ host }: { host: ScanHost }) {
             </Badge>
           ))}
         </div>
+        {host.risk_score !== null && (
+          <RiskBadge score={host.risk_score} band={host.risk_band} className="shrink-0" />
+        )}
         {host.os_guess && (
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <Cpu className="size-3.5" />
@@ -279,6 +300,25 @@ function HostRow({ host }: { host: ScanHost }) {
 
       {open && (
         <div className="border-t px-4 pb-4">
+          {host.findings.length > 0 && (
+            <div className="mt-4 space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">
+                Findings ({host.findings.length})
+              </p>
+              <ul className="divide-y rounded-md border">
+                {host.findings.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2.5 px-3 py-2 text-sm">
+                    <SeverityTag severity={f.severity} />
+                    <div className="min-w-0 flex-1">
+                      <p>{f.title}</p>
+                      {f.detail && <p className="text-xs text-muted-foreground">{f.detail}</p>}
+                    </div>
+                    <span className="shrink-0 text-xs font-medium tabular-nums">+{f.points}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <Table>
             <TableHeader>
               <TableRow>

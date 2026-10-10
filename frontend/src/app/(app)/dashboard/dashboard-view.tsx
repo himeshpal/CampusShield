@@ -16,11 +16,14 @@ import Link from "next/link";
 
 import { ActivityFeed } from "@/components/activity-feed";
 import { PageHeader } from "@/components/page-header";
+import { RiskBadge } from "@/components/risk/risk-badge";
+import { RiskDistribution } from "@/components/risk/risk-distribution";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useAssetSummary } from "@/hooks/use-assets";
+import { useAssetSummary, useRiskSummary } from "@/hooks/use-assets";
 import { useActiveScan, useScanHistory } from "@/hooks/use-scans";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +44,7 @@ const STATS: {
     label: "Unregistered devices",
     icon: ShieldAlert,
     hint: "Seen on the network, not in inventory",
-    tone: "text-risk-high",
+    tone: "text-risk-high-ink",
     href: "/assets?status=unregistered",
   },
   {
@@ -49,7 +52,8 @@ const STATS: {
     label: "Critical risk",
     icon: ShieldAlert,
     hint: "Assets scoring 75 or above",
-    tone: "text-risk-critical",
+    tone: "text-risk-critical-ink",
+    href: "/assets",
   },
   { key: "alerts", label: "Open alerts", icon: Bell, hint: "Changes waiting for review" },
 ];
@@ -106,10 +110,11 @@ export function DashboardView() {
   const { data: active } = useActiveScan();
   const { data: scans } = useScanHistory();
   const { data: inventory } = useAssetSummary();
+  const { data: risk } = useRiskSummary();
   const values: Record<StatKey, number | undefined> = {
     assets: inventory?.registered,
     unregistered: inventory?.unregistered,
-    critical: undefined,
+    critical: risk?.bands.critical,
     alerts: undefined,
   };
   const done: Record<StepKey, boolean> = {
@@ -148,13 +153,14 @@ export function DashboardView() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {STATS.map(({ key, label, icon: Icon, hint, tone, href }) => {
           const value = values[key];
-          const alarming = key === "unregistered" && !!value;
+          const alarming = (key === "unregistered" || key === "critical") && !!value;
           const card = (
             <Card
               className={cn(
                 "h-full gap-3 transition-colors",
                 href && "hover:border-primary/40",
-                alarming && "border-risk-high/40 bg-risk-high/5",
+                alarming && key === "unregistered" && "border-risk-high/40 bg-risk-high/5",
+                alarming && key === "critical" && "border-risk-critical/40 bg-risk-critical/5",
               )}
             >
               <CardHeader className="flex flex-row items-center justify-between">
@@ -166,7 +172,7 @@ export function DashboardView() {
                   className={cn(
                     "text-3xl font-semibold tracking-tight tabular-nums",
                     value === undefined && "text-muted-foreground/60",
-                    alarming && "text-risk-high",
+                    alarming && (key === "critical" ? "text-risk-critical-ink" : "text-risk-high-ink"),
                   )}
                 >
                   {value ?? "—"}
@@ -183,6 +189,76 @@ export function DashboardView() {
             <div key={key}>{card}</div>
           );
         })}
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <CardTitle>Risk distribution</CardTitle>
+              <CardDescription>
+                {risk?.assessed ? `${risk.assessed} assets assessed` : "No assets assessed yet"}
+              </CardDescription>
+            </div>
+            {risk?.average != null && (
+              <div className="text-right">
+                <p className="text-2xl font-semibold tabular-nums">{Math.round(risk.average)}</p>
+                <p className="text-xs text-muted-foreground">average score</p>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
+            {risk ? <RiskDistribution bands={risk.bands} /> : <Skeleton className="h-16 w-full" />}
+            {!!risk?.drivers.length && (
+              <div className="mt-6 space-y-2.5 border-t pt-4">
+                <p className="text-sm font-medium">What drives the risk</p>
+                {risk.drivers
+                  .filter((d) => d.points > 0)
+                  .map((d) => (
+                    <div key={d.key} className="grid grid-cols-[minmax(0,13rem)_1fr_3rem] items-center gap-3 text-sm">
+                      <span className="truncate text-muted-foreground">{d.label}</span>
+                      {/* neutral fill: an amount, not a status */}
+                      <div className="h-2 overflow-hidden rounded-full bg-muted">
+                        <div className="h-full rounded-full bg-foreground/60" style={{ width: `${d.share * 100}%` }} />
+                      </div>
+                      <span className="text-right tabular-nums">{Math.round(d.share * 100)}%</span>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Riskiest assets</CardTitle>
+            <CardDescription>Fix these first.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {risk?.top.length === 0 && (
+              <p className="text-sm text-muted-foreground">Run a scan to assess assets.</p>
+            )}
+            <ol className="space-y-1">
+              {risk?.top.map((a, i) => (
+                <li key={a.id}>
+                  <Link
+                    href={`/assets/${a.id}`}
+                    className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted/60"
+                  >
+                    <span className="w-4 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {a.name ?? (a.status === "unregistered" ? "Unknown device" : a.asset_tag)}
+                      </p>
+                      <p className="font-mono text-xs text-muted-foreground">{a.asset_tag}</p>
+                    </div>
+                    <RiskBadge score={a.score} band={a.band} />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">

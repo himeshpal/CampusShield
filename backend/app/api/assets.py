@@ -5,7 +5,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.api.deps import AdminUser, CurrentUser, DbSession, client_ip
-from app.models import Asset, Scan, ScanHost
+from app.models import Asset, RiskScore, Scan, ScanHost
 from app.schemas.asset import (
     AssetDetail,
     AssetFields,
@@ -18,8 +18,10 @@ from app.schemas.asset import (
     ObservedPort,
     criticality_level,
 )
+from app.schemas.risk import RiskPoint
 from app.services import audit
 from app.services.matching import next_asset_tag
+from app.services.risk.service import latest_scores, rescore
 
 router = APIRouter(prefix="/assets", tags=["assets"])
 
@@ -40,7 +42,13 @@ def _latest_hosts(db: Session, asset_ids: list[int]) -> dict[int, ScanHost]:
     return {h.asset_id: h for h in hosts}
 
 
-def _out(asset: Asset, latest: ScanHost | None, model: type[AssetOut] = AssetOut, **extra):
+def _out(
+    asset: Asset,
+    latest: ScanHost | None,
+    score: RiskScore | None = None,
+    model: type[AssetOut] = AssetOut,
+    **extra,
+):
     total = (
         asset.data_sensitivity
         + asset.service_dependency
@@ -56,6 +64,8 @@ def _out(asset: Asset, latest: ScanHost | None, model: type[AssetOut] = AssetOut
             if latest
             else None,
             "last_scan_id": latest.scan_id if latest else None,
+            "risk_score": score.score if score and asset.status != "retired" else None,
+            "risk_band": score.band if score and asset.status != "retired" else None,
             **extra,
         }
     )
@@ -126,10 +136,18 @@ def list_assets(
                 )
             )
         )  # fmt: skip
-    # unregistered first: they need attention
-    assets = list(db.scalars(query.order_by((Asset.status == "unregistered").desc(), Asset.id)))
-    latest = _latest_hosts(db, [a.id for a in assets])
-    return [_out(a, latest.get(a.id)) for a in assets]
+    assets = list(db.scalars(query.order_by(Asset.id)))
+    ids = [a.id for a in assets]
+    latest, scores = _latest_hosts(db, ids), latest_scores(db, ids)
+    # needs attention first: unregistered devices, then highest risk
+    assets.sort(
+        key=lambda a: (
+            a.status != "unregistered",
+            a.status == "retired",
+            -(scores[a.id].score if a.id in scores else -1),
+        )
+    )
+    return [_out(a, latest.get(a.id), scores.get(a.id)) for a in assets]
 
 
 @router.get("/{asset_id}", response_model=AssetDetail)
@@ -155,7 +173,27 @@ def get_asset(asset_id: int, _: CurrentUser, db: DbSession) -> AssetOut:
         for host, scan in rows
     ]
     latest = rows[0][0] if rows else None
-    return _out(asset, latest, AssetDetail, observations=observations)
+    history = list(
+        db.scalars(
+            select(RiskScore)
+            .where(RiskScore.asset_id == asset_id)
+            .order_by(RiskScore.id.desc())
+            .limit(30)
+        )
+    )[::-1]
+    current = history[-1] if history else None
+    return _out(
+        asset,
+        latest,
+        current,
+        AssetDetail,
+        observations=observations,
+        risk=current.breakdown if current and asset.status != "retired" else None,
+        risk_history=[
+            RiskPoint(score=r.score, band=r.band, computed_at=r.computed_at, scan_id=r.scan_id)
+            for r in history
+        ],
+    )
 
 
 @router.post("", response_model=AssetOut, status_code=status.HTTP_201_CREATED)
@@ -169,8 +207,9 @@ def create_asset(body: AssetFields, admin: AdminUser, request: Request, db: DbSe
         details={"asset_tag": asset.asset_tag, "name": asset.name},
         ip_address=client_ip(request),
     )  # fmt: skip
+    risk = rescore(db, asset)
     db.commit()
-    return _out(asset, None)
+    return _out(asset, None, risk)
 
 
 @router.patch("/{asset_id}", response_model=AssetOut)
@@ -193,8 +232,9 @@ def update_asset(
         details={k: v for k, v in changes.items() if k != "notes"},
         ip_address=client_ip(request),
     )  # fmt: skip
+    risk = rescore(db, asset)  # criticality, baseline or status may have changed
     db.commit()
-    return _out(asset, _latest_hosts(db, [asset.id]).get(asset.id))
+    return _out(asset, _latest_hosts(db, [asset.id]).get(asset.id), risk)
 
 
 @router.post("/{asset_id}/register", response_model=AssetOut)
@@ -219,5 +259,6 @@ def register_asset(
         details={"asset_tag": asset.asset_tag, "name": asset.name, "type": asset.asset_type},
         ip_address=client_ip(request),
     )  # fmt: skip
+    risk = rescore(db, asset, record_findings=True)
     db.commit()
-    return _out(asset, _latest_hosts(db, [asset.id]).get(asset.id))
+    return _out(asset, _latest_hosts(db, [asset.id]).get(asset.id), risk)

@@ -3,7 +3,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
-import type { Asset, AssetDetail, AssetFields, AssetStatus, AssetSummary, AssetType } from "@/lib/types";
+import type {
+  Asset,
+  AssetDetail,
+  AssetFields,
+  AssetStatus,
+  AssetSummary,
+  AssetType,
+  RiskModel,
+  RiskSummary,
+} from "@/lib/types";
 
 export type AssetFilters = { status?: AssetStatus; asset_type?: AssetType; q?: string };
 
@@ -54,5 +63,20 @@ export function useSaveAsset() {
       queryClient.invalidateQueries({ queryKey: ["scans", "detail"] });
       queryClient.invalidateQueries({ queryKey: ["audit-log"] });
     },
+  });
+}
+
+export function useRiskSummary() {
+  return useQuery({
+    queryKey: ["assets", "risk-summary"], // under "assets": refreshed with every asset change
+    queryFn: () => api<RiskSummary>("/risk/summary"),
+  });
+}
+
+export function useRiskModel() {
+  return useQuery({
+    queryKey: ["risk-model"],
+    queryFn: () => api<RiskModel>("/risk/model"),
+    staleTime: Infinity,
   });
 }

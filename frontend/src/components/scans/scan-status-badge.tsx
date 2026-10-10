@@ -12,7 +12,7 @@ const STYLES: Record<ScanStatus, { label: string; className: string; dot: string
   completed: { label: "Completed", className: "", dot: "bg-primary" },
   failed: {
     label: "Failed",
-    className: "border-risk-critical/30 bg-risk-critical/10 text-risk-critical",
+    className: "border-risk-critical/30 bg-risk-critical/10 text-risk-critical-ink",
     dot: "bg-risk-critical",
   },
   cancelled: { label: "Cancelled", className: "text-muted-foreground", dot: "bg-muted-foreground" },

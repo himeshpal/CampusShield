@@ -13,6 +13,9 @@ import {
   MatchBadge,
 } from "@/components/assets/asset-badges";
 import { AssetFormDialog } from "@/components/assets/asset-form-dialog";
+import { RiskMeter } from "@/components/risk/risk-meter";
+import { RiskTrend } from "@/components/risk/risk-trend";
+import { ScoreBreakdown } from "@/components/risk/score-breakdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,7 +129,7 @@ export function AssetDetailView() {
 
       {unregistered && (
         <div className="mb-6 flex gap-3 rounded-xl border border-risk-high/40 bg-risk-high/5 p-4 text-sm">
-          <AlertTriangle className="size-5 shrink-0 text-risk-high" />
+          <AlertTriangle className="size-5 shrink-0 text-risk-high-ink" />
           <div>
             <p className="font-medium">Not in the inventory</p>
             <p className="text-muted-foreground">
@@ -144,6 +147,18 @@ export function AssetDetailView() {
           column past the screen edge on phones instead of scrolling inside its card */}
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="min-w-0 space-y-6">
+          {asset.risk && <RiskCard asset={asset} />}
+          {asset.risk && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Why this score</CardTitle>
+                <CardDescription>Every point and the evidence behind it.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScoreBreakdown risk={asset.risk} />
+              </CardContent>
+            </Card>
+          )}
           <ExposureCard asset={asset} />
           <HistoryCard asset={asset} />
         </div>
@@ -157,6 +172,36 @@ export function AssetDetailView() {
         <AssetFormDialog mode={dialog} asset={asset} open onOpenChange={(o) => !o && setDialog(null)} />
       )}
     </>
+  );
+}
+
+function RiskCard({ asset }: { asset: AssetDetail }) {
+  const risk = asset.risk!;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Risk score</CardTitle>
+        <CardDescription>
+          {asset.last_scan_id ? `Based on scan #${asset.last_scan_id}` : "Not scanned yet"} and the
+          security checklist.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <RiskMeter score={risk.score} band={risk.band} />
+        {asset.risk_history.length > 1 ? (
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">
+              Score history (last {asset.risk_history.length} assessments)
+            </p>
+            <RiskTrend history={asset.risk_history} />
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            The score history appears after the next scan or change.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -216,7 +261,7 @@ function ExposureCard({ asset }: { asset: AssetDetail }) {
                             Expected
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="border-risk-high/50 bg-risk-high/10 font-normal text-risk-high">
+                          <Badge variant="outline" className="border-risk-high/50 bg-risk-high/10 font-normal text-risk-high-ink">
                             Unexpected
                           </Badge>
                         )}

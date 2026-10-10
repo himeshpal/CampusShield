@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import AdminUser, CurrentUser, DbSession, client_ip
 from app.core.config import get_settings
-from app.models import Scan, ScanHost
+from app.models import RiskScore, Scan, ScanHost
 from app.models.scan import ACTIVE_STATUSES
 from app.schemas.scan import ScanCreate, ScanDetail, ScanOptions, ScanOut
 from app.services import scans as scan_service
@@ -88,11 +88,22 @@ def get_scan(scan_id: int, _: CurrentUser, db: DbSession) -> ScanOut:
         .options(
             selectinload(Scan.hosts).selectinload(ScanHost.ports),
             selectinload(Scan.hosts).selectinload(ScanHost.asset),
+            selectinload(Scan.hosts).selectinload(ScanHost.findings),
         )
     )
     if not scan:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Scan not found")
-    return _out(scan, ScanDetail)
+    detail = _out(scan, ScanDetail)
+    # the score each asset got from this scan (the first one recorded for it)
+    scores: dict[int, RiskScore] = {}
+    for row in db.scalars(
+        select(RiskScore).where(RiskScore.scan_id == scan_id).order_by(RiskScore.id)
+    ):
+        scores.setdefault(row.asset_id, row)
+    for host in detail.hosts:
+        if host.asset and (risk := scores.get(host.asset.id)):
+            host.risk_score, host.risk_band = risk.score, risk.band
+    return detail
 
 
 @router.post("/{scan_id}/cancel", response_model=ScanOut)

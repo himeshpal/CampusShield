@@ -9,6 +9,10 @@
   --color-risk-medium: var(--risk-medium);
   --color-risk-high: var(--risk-high);
   --color-risk-critical: var(--risk-critical);
+  --color-risk-low-ink: var(--risk-low-ink);
+  --color-risk-medium-ink: var(--risk-medium-ink);
+  --color-risk-high-ink: var(--risk-high-ink);
+  --color-risk-critical-ink: var(--risk-critical-ink);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -53,10 +57,19 @@
 }
 
 :root {
-  --risk-low: oklch(0.627 0.17 149.214);
-  --risk-medium: oklch(0.769 0.165 70.08);
-  --risk-high: oklch(0.646 0.222 41.116);
-  --risk-critical: oklch(0.577 0.245 27.325);
+  /* Risk bands are a status scale. Mark colours (dots, bars, tints) were checked with the
+     dataviz palette validator: adjacent bands stay apart under colour-blindness
+     (deutan dE 14.1) and normal vision (dE 18.0). Amber/orange are too light for text,
+     so any coloured text uses the matching -ink token (WCAG >= 4.5:1), and a band is
+     always shown with its name, never by colour alone. */
+  --risk-low: #0ca30c;
+  --risk-medium: #f5c518;
+  --risk-high: #ec835a;
+  --risk-critical: #c62b3a;
+  --risk-low-ink: #0b7a0b;
+  --risk-medium-ink: #8a6a00;
+  --risk-high-ink: #b04a17;
+  --risk-critical-ink: #b8233a;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -92,10 +105,14 @@
 }
 
 .dark {
-  --risk-low: oklch(0.723 0.192 149.579);
-  --risk-medium: oklch(0.828 0.189 84.429);
-  --risk-high: oklch(0.705 0.213 47.604);
-  --risk-critical: oklch(0.704 0.191 22.216);
+  --risk-low: #0ca30c;
+  --risk-medium: #f5c518;
+  --risk-high: #ec835a;
+  --risk-critical: #c62b3a;
+  --risk-low-ink: #3ec43e;
+  --risk-medium-ink: #f5c518;
+  --risk-high-ink: #ef8f66;
+  --risk-critical-ink: #ff7a85;
   --background: oklch(0.145 0.004 260);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.19 0.005 260);

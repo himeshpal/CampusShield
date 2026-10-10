@@ -61,3 +61,40 @@ Next.js 16 dev server, Chromium (Playwright 1.64)
 - **No full script Content-Security-Policy** (Next.js dev mode needs inline scripts);
   clickjacking protection is in place.
 - **Cold start ~3 min** is dominated by Docker Desktop/WSL booting, not the application.
+
+---
+
+# Addendum: Phase 4 (risk scoring)
+
+**Results:** backend **179 / 179** (incl. live lab), E2E **29 / 29**, 0 server errors,
+0 hydration warnings; layout audit of 6 pages × 4 widths: 0 overflow, 0 console errors.
+
+## Verification of the model
+
+| ID | Check | Result |
+|---|---|---|
+| TC-20 | All 14 CVE reference entries checked against the NIST NVD API (CVSS + description) | 14/14 match |
+| TC-21 | Lab device scores vs. hand calculation (6 devices, table-driven test) | All equal |
+| TC-22 | Band boundaries (24.9/25, 49.9/50, 74.9/75), CVSS-to-points boundaries, component caps, 100 ceiling | Pass |
+| TC-23 | Quick sweep after a deep scan keeps CVE and NSE evidence (carry-forward) | Scores unchanged, source scan shown |
+| TC-24 | Editing criticality / baseline / registering a device rescores immediately | Pass (API + E2E) |
+| TC-25 | Live deep scan: scores and findings attributed to that scan | 7 scores, 24 findings on scan #23 |
+| TC-26 | Risk-band colours validated (dataviz palette validator, light + dark) | CVD ΔE 14.1, normal-vision ΔE 18.0 |
+
+## Defects found and fixed during Phase 4
+
+| ID | Defect | Root cause | Fix |
+|---|---|---|---|
+| D-7 | Risk scores were always one scan behind; deep-scan findings were never scored | Scoring runs while the scan is still "running", and evidence was read only from completed scans | Scoring explicitly includes the scan being finished (`current_scan_id`); regression test reproduces the real sequence |
+| D-8 | HTTPS (443) scored as unencrypted HTTP and shown as `443/http` | python-nmap drops nmap's `tunnel="ssl"` attribute | Parser reads the tunnel from the XML and reports `ssl/http` |
+| D-9 | High vs. Critical colours indistinguishable (ΔE 7.5; colour-blind ΔE 5-6) | Palette chosen by eye | Re-stepped to a validated status palette; text uses separate ink shades (WCAG ≥ 4.5:1) |
+| D-10 | Amber/orange used as text colour (contrast 1.6-2.6:1) | Same tokens used for marks and text | `-ink` text tokens; 21 usages migrated |
+| D-11 | "Not confirmed" checklist items shown with a green (= "fine") dot | Low severity mapped to the Low-risk colour | Low severity is neutral grey; green reserved for the Low band |
+
+## Known limitations (risk model)
+
+- CVE matching uses service banners: distribution backports are invisible, so a matched
+  CVE can be a false positive and should be confirmed on the host (stated in the UI).
+- Only TCP services in the scan profile are assessed.
+- Until the checklist (Phase 5) is filled in, every asset carries the full 20 points
+  for unconfirmed controls; they are 42 % of all campus risk points in the demo data.

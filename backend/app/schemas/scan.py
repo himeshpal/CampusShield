@@ -68,6 +68,18 @@ class HostAsset(BaseModel):
     asset_type: str
 
 
+class FindingOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    kind: str
+    severity: str
+    title: str
+    detail: str | None
+    port: int | None
+    cve_id: str | None
+    points: float
+
+
 class ScanHostOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,6 +92,9 @@ class ScanHostOut(BaseModel):
     match_method: str | None  # mac | ip | new | ip_conflict
     asset: HostAsset | None
     ports: list[ScanPortOut]
+    findings: list[FindingOut] = []
+    risk_score: float | None = None  # the asset's score computed from this scan
+    risk_band: str | None = None
 
 
 class ScanDetail(ScanOut):

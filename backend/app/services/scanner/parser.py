@@ -1,6 +1,7 @@
 """Normalise nmap XML (via python-nmap) into plain dataclasses the rest of the app uses."""
 
 from dataclasses import dataclass, field
+from xml.etree import ElementTree
 
 import nmap
 
@@ -42,9 +43,27 @@ def _blank_to_none(value: str | None) -> str | None:
     return value.strip() or None if value else None
 
 
+def _ssl_tunnels(xml: str) -> set[tuple[str, str, int]]:
+    """(ip, protocol, port) of services nmap saw inside TLS (`<service tunnel="ssl">`).
+
+    python-nmap drops the tunnel attribute, which would make HTTPS look like plain HTTP.
+    """
+    tunnels = set()
+    for host in ElementTree.fromstring(xml).iter("host"):
+        address = host.find("address[@addrtype='ipv4']")
+        if address is None:
+            continue
+        for port in host.iter("port"):
+            service = port.find("service")
+            if service is not None and service.get("tunnel") == "ssl":
+                tunnels.add((address.get("addr"), port.get("protocol"), int(port.get("portid"))))
+    return tunnels
+
+
 def parse_nmap_xml(xml: str) -> ParsedScan:
     data = nmap.PortScanner().analyse_nmap_xml_scan(nmap_xml_output=xml)
     stats = data["nmap"]
+    tunnels = _ssl_tunnels(xml)
     hosts: list[ParsedHost] = []
 
     for ip, info in data["scan"].items():
@@ -59,12 +78,15 @@ def parse_nmap_xml(xml: str) -> ParsedScan:
             for number, port in sorted(info.get(proto, {}).items()):
                 if port.get("state") != "open":
                     continue  # only open services matter for exposure
+                service = _blank_to_none(port.get("name"))
+                if service and (ip, proto, int(number)) in tunnels:
+                    service = f"ssl/{service}"  # nmap's own notation, e.g. ssl/http
                 ports.append(
                     ParsedPort(
                         port=int(number),
                         protocol=proto,
                         state=port["state"],
-                        service=_blank_to_none(port.get("name")),
+                        service=service,
                         product=_blank_to_none(port.get("product")),
                         version=_blank_to_none(port.get("version")),
                         extra_info=_blank_to_none(port.get("extrainfo")),

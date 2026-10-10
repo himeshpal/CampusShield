@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 import { AuditLogPanel } from "./audit-log-panel";
+import { RiskModelPanel } from "./risk-model-panel";
 import { UsersPanel } from "./users-panel";
 
 export function SettingsView() {
@@ -14,7 +15,7 @@ export function SettingsView() {
 
   return (
     <>
-      <PageHeader title="Settings" description="Accounts, audit trail and system health." />
+      <PageHeader title="Settings" description="Accounts, audit trail, risk model and system health." />
       {user ? <SettingsTabs userId={user.id} isAdmin={user.role === "admin"} /> : <TabsSkeleton />}
     </>
   );
@@ -26,6 +27,7 @@ function SettingsTabs({ userId, isAdmin }: { userId: number; isAdmin: boolean })
       <TabsList>
         {isAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
         <TabsTrigger value="audit">Audit log</TabsTrigger>
+        <TabsTrigger value="risk">Risk model</TabsTrigger>
         <TabsTrigger value="system">System</TabsTrigger>
       </TabsList>
       {isAdmin && (
@@ -35,6 +37,9 @@ function SettingsTabs({ userId, isAdmin }: { userId: number; isAdmin: boolean })
       )}
       <TabsContent value="audit">
         <AuditLogPanel />
+      </TabsContent>
+      <TabsContent value="risk">
+        <RiskModelPanel />
       </TabsContent>
       <TabsContent value="system">
         <div className="max-w-md">
