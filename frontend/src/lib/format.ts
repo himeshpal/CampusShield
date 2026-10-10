@@ -43,7 +43,27 @@ const ACTIONS: Record<string, string> = {
   "user.created": "Created a user",
   "user.updated": "Updated a user",
   "user.deleted": "Deleted a user",
+  "scan.started": "Started a network scan",
+  "scan.completed": "Network scan completed",
+  "scan.failed": "Network scan failed",
+  "scan.cancelled": "Network scan cancelled",
+  "scan.cancel_requested": "Cancelled a network scan",
 };
+
+/** "1m 05s" style duration between two ISO timestamps (end defaults to now). */
+export function duration(startIso: string | null, endIso?: string | null): string {
+  if (!startIso) return "—";
+  const end = endIso ? new Date(endIso).getTime() : Date.now();
+  const total = Math.max(0, Math.round((end - new Date(startIso).getTime()) / 1000));
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return minutes ? `${minutes}m ${String(seconds).padStart(2, "0")}s` : `${seconds}s`;
+}
+
+/** "Apache httpd 2.4.49" from the parts nmap reports. */
+export function softwareLabel(product: string | null, version: string | null): string | null {
+  return [product, version].filter(Boolean).join(" ") || null;
+}
 
 export function actionLabel(action: string): string {
   return ACTIONS[action] ?? action;

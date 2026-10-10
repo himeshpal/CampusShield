@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # scanning
     authorized_subnets: str = "172.25.0.0/24"
     scanner_self_ip: str | None = None
+    # addresses never scanned (comma-separated), e.g. the Docker bridge gateway in the lab
+    scan_exclude: str = ""
 
     # automation
     n8n_webhook_url: str | None = None
@@ -36,7 +38,17 @@ class Settings(BaseSettings):
 
     @property
     def authorized_subnet_list(self) -> list[str]:
-        return [s.strip() for s in self.authorized_subnets.split(",") if s.strip()]
+        return _split(self.authorized_subnets)
+
+    @property
+    def scan_exclude_list(self) -> list[str]:
+        """The scanner's own address plus configured exclusions."""
+        own = [self.scanner_self_ip] if self.scanner_self_ip else []
+        return own + [ip for ip in _split(self.scan_exclude) if ip not in own]
+
+
+def _split(value: str) -> list[str]:
+    return [part.strip() for part in value.split(",") if part.strip()]
 
 
 @lru_cache

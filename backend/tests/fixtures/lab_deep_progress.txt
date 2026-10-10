@@ -1,0 +1,893 @@
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-10-10 12:31 UTC
+NSE: Loaded 54 scripts for scanning.
+NSE: Script Pre-scanning.
+Initiating NSE at 12:31
+Completed NSE at 12:31, 0.00s elapsed
+Initiating NSE at 12:31
+Completed NSE at 12:31, 0.00s elapsed
+Initiating ARP Ping Scan at 12:31
+Scanning 254 hosts [1 port/host]
+Stats: 0:00:01 elapsed; 0 hosts completed (0 up), 254 undergoing ARP Ping Scan
+ARP Ping Scan Timing: About 51.38% done; ETC: 12:31 (0:00:01 remaining)
+Stats: 0:00:02 elapsed; 0 hosts completed (0 up), 254 undergoing ARP Ping Scan
+ARP Ping Scan Timing: About 96.65% done; ETC: 12:31 (0:00:00 remaining)
+Completed ARP Ping Scan at 12:31, 1.92s elapsed (254 total hosts)
+Nmap scan report for 172.25.0.0 [host down]
+Nmap scan report for 172.25.0.2 [host down]
+Nmap scan report for 172.25.0.3 [host down]
+Nmap scan report for 172.25.0.4 [host down]
+Nmap scan report for 172.25.0.6 [host down]
+Nmap scan report for 172.25.0.7 [host down]
+Nmap scan report for 172.25.0.8 [host down]
+Nmap scan report for 172.25.0.9 [host down]
+Nmap scan report for 172.25.0.13 [host down]
+Nmap scan report for 172.25.0.14 [host down]
+Nmap scan report for 172.25.0.15 [host down]
+Nmap scan report for 172.25.0.16 [host down]
+Nmap scan report for 172.25.0.17 [host down]
+Nmap scan report for 172.25.0.18 [host down]
+Nmap scan report for 172.25.0.19 [host down]
+Nmap scan report for 172.25.0.21 [host down]
+Nmap scan report for 172.25.0.22 [host down]
+Nmap scan report for 172.25.0.23 [host down]
+Nmap scan report for 172.25.0.24 [host down]
+Nmap scan report for 172.25.0.25 [host down]
+Nmap scan report for 172.25.0.26 [host down]
+Nmap scan report for 172.25.0.27 [host down]
+Nmap scan report for 172.25.0.28 [host down]
+Nmap scan report for 172.25.0.29 [host down]
+Nmap scan report for 172.25.0.31 [host down]
+Nmap scan report for 172.25.0.32 [host down]
+Nmap scan report for 172.25.0.33 [host down]
+Nmap scan report for 172.25.0.34 [host down]
+Nmap scan report for 172.25.0.35 [host down]
+Nmap scan report for 172.25.0.36 [host down]
+Nmap scan report for 172.25.0.37 [host down]
+Nmap scan report for 172.25.0.38 [host down]
+Nmap scan report for 172.25.0.39 [host down]
+Nmap scan report for 172.25.0.41 [host down]
+Nmap scan report for 172.25.0.42 [host down]
+Nmap scan report for 172.25.0.43 [host down]
+Nmap scan report for 172.25.0.44 [host down]
+Nmap scan report for 172.25.0.45 [host down]
+Nmap scan report for 172.25.0.46 [host down]
+Nmap scan report for 172.25.0.47 [host down]
+Nmap scan report for 172.25.0.48 [host down]
+Nmap scan report for 172.25.0.49 [host down]
+Nmap scan report for 172.25.0.50 [host down]
+Nmap scan report for 172.25.0.51 [host down]
+Nmap scan report for 172.25.0.52 [host down]
+Nmap scan report for 172.25.0.53 [host down]
+Nmap scan report for 172.25.0.54 [host down]
+Nmap scan report for 172.25.0.55 [host down]
+Nmap scan report for 172.25.0.56 [host down]
+Nmap scan report for 172.25.0.57 [host down]
+Nmap scan report for 172.25.0.58 [host down]
+Nmap scan report for 172.25.0.59 [host down]
+Nmap scan report for 172.25.0.60 [host down]
+Nmap scan report for 172.25.0.61 [host down]
+Nmap scan report for 172.25.0.62 [host down]
+Nmap scan report for 172.25.0.63 [host down]
+Nmap scan report for 172.25.0.64 [host down]
+Nmap scan report for 172.25.0.65 [host down]
+Nmap scan report for 172.25.0.67 [host down]
+Nmap scan report for 172.25.0.68 [host down]
+Nmap scan report for 172.25.0.69 [host down]
+Nmap scan report for 172.25.0.70 [host down]
+Nmap scan report for 172.25.0.71 [host down]
+Nmap scan report for 172.25.0.72 [host down]
+Nmap scan report for 172.25.0.73 [host down]
+Nmap scan report for 172.25.0.74 [host down]
+Nmap scan report for 172.25.0.75 [host down]
+Nmap scan report for 172.25.0.76 [host down]
+Nmap scan report for 172.25.0.77 [host down]
+Nmap scan report for 172.25.0.78 [host down]
+Nmap scan report for 172.25.0.79 [host down]
+Nmap scan report for 172.25.0.80 [host down]
+Nmap scan report for 172.25.0.81 [host down]
+Nmap scan report for 172.25.0.82 [host down]
+Nmap scan report for 172.25.0.83 [host down]
+Nmap scan report for 172.25.0.84 [host down]
+Nmap scan report for 172.25.0.85 [host down]
+Nmap scan report for 172.25.0.86 [host down]
+Nmap scan report for 172.25.0.87 [host down]
+Nmap scan report for 172.25.0.88 [host down]
+Nmap scan report for 172.25.0.89 [host down]
+Nmap scan report for 172.25.0.90 [host down]
+Nmap scan report for 172.25.0.91 [host down]
+Nmap scan report for 172.25.0.92 [host down]
+Nmap scan report for 172.25.0.93 [host down]
+Nmap scan report for 172.25.0.94 [host down]
+Nmap scan report for 172.25.0.95 [host down]
+Nmap scan report for 172.25.0.96 [host down]
+Nmap scan report for 172.25.0.97 [host down]
+Nmap scan report for 172.25.0.98 [host down]
+Nmap scan report for 172.25.0.99 [host down]
+Nmap scan report for 172.25.0.100 [host down]
+Nmap scan report for 172.25.0.101 [host down]
+Nmap scan report for 172.25.0.102 [host down]
+Nmap scan report for 172.25.0.103 [host down]
+Nmap scan report for 172.25.0.104 [host down]
+Nmap scan report for 172.25.0.105 [host down]
+Nmap scan report for 172.25.0.106 [host down]
+Nmap scan report for 172.25.0.107 [host down]
+Nmap scan report for 172.25.0.108 [host down]
+Nmap scan report for 172.25.0.109 [host down]
+Nmap scan report for 172.25.0.110 [host down]
+Nmap scan report for 172.25.0.111 [host down]
+Nmap scan report for 172.25.0.112 [host down]
+Nmap scan report for 172.25.0.113 [host down]
+Nmap scan report for 172.25.0.114 [host down]
+Nmap scan report for 172.25.0.115 [host down]
+Nmap scan report for 172.25.0.116 [host down]
+Nmap scan report for 172.25.0.117 [host down]
+Nmap scan report for 172.25.0.118 [host down]
+Nmap scan report for 172.25.0.119 [host down]
+Nmap scan report for 172.25.0.120 [host down]
+Nmap scan report for 172.25.0.121 [host down]
+Nmap scan report for 172.25.0.122 [host down]
+Nmap scan report for 172.25.0.123 [host down]
+Nmap scan report for 172.25.0.124 [host down]
+Nmap scan report for 172.25.0.125 [host down]
+Nmap scan report for 172.25.0.126 [host down]
+Nmap scan report for 172.25.0.127 [host down]
+Nmap scan report for 172.25.0.128 [host down]
+Nmap scan report for 172.25.0.129 [host down]
+Nmap scan report for 172.25.0.130 [host down]
+Nmap scan report for 172.25.0.131 [host down]
+Nmap scan report for 172.25.0.132 [host down]
+Nmap scan report for 172.25.0.133 [host down]
+Nmap scan report for 172.25.0.134 [host down]
+Nmap scan report for 172.25.0.135 [host down]
+Nmap scan report for 172.25.0.136 [host down]
+Nmap scan report for 172.25.0.137 [host down]
+Nmap scan report for 172.25.0.138 [host down]
+Nmap scan report for 172.25.0.139 [host down]
+Nmap scan report for 172.25.0.140 [host down]
+Nmap scan report for 172.25.0.141 [host down]
+Nmap scan report for 172.25.0.142 [host down]
+Nmap scan report for 172.25.0.143 [host down]
+Nmap scan report for 172.25.0.144 [host down]
+Nmap scan report for 172.25.0.145 [host down]
+Nmap scan report for 172.25.0.146 [host down]
+Nmap scan report for 172.25.0.147 [host down]
+Nmap scan report for 172.25.0.148 [host down]
+Nmap scan report for 172.25.0.149 [host down]
+Nmap scan report for 172.25.0.150 [host down]
+Nmap scan report for 172.25.0.151 [host down]
+Nmap scan report for 172.25.0.152 [host down]
+Nmap scan report for 172.25.0.153 [host down]
+Nmap scan report for 172.25.0.154 [host down]
+Nmap scan report for 172.25.0.155 [host down]
+Nmap scan report for 172.25.0.156 [host down]
+Nmap scan report for 172.25.0.157 [host down]
+Nmap scan report for 172.25.0.158 [host down]
+Nmap scan report for 172.25.0.159 [host down]
+Nmap scan report for 172.25.0.160 [host down]
+Nmap scan report for 172.25.0.161 [host down]
+Nmap scan report for 172.25.0.162 [host down]
+Nmap scan report for 172.25.0.163 [host down]
+Nmap scan report for 172.25.0.164 [host down]
+Nmap scan report for 172.25.0.165 [host down]
+Nmap scan report for 172.25.0.166 [host down]
+Nmap scan report for 172.25.0.167 [host down]
+Nmap scan report for 172.25.0.168 [host down]
+Nmap scan report for 172.25.0.169 [host down]
+Nmap scan report for 172.25.0.170 [host down]
+Nmap scan report for 172.25.0.171 [host down]
+Nmap scan report for 172.25.0.172 [host down]
+Nmap scan report for 172.25.0.173 [host down]
+Nmap scan report for 172.25.0.174 [host down]
+Nmap scan report for 172.25.0.175 [host down]
+Nmap scan report for 172.25.0.176 [host down]
+Nmap scan report for 172.25.0.177 [host down]
+Nmap scan report for 172.25.0.178 [host down]
+Nmap scan report for 172.25.0.179 [host down]
+Nmap scan report for 172.25.0.180 [host down]
+Nmap scan report for 172.25.0.181 [host down]
+Nmap scan report for 172.25.0.182 [host down]
+Nmap scan report for 172.25.0.183 [host down]
+Nmap scan report for 172.25.0.184 [host down]
+Nmap scan report for 172.25.0.185 [host down]
+Nmap scan report for 172.25.0.186 [host down]
+Nmap scan report for 172.25.0.187 [host down]
+Nmap scan report for 172.25.0.188 [host down]
+Nmap scan report for 172.25.0.189 [host down]
+Nmap scan report for 172.25.0.190 [host down]
+Nmap scan report for 172.25.0.191 [host down]
+Nmap scan report for 172.25.0.192 [host down]
+Nmap scan report for 172.25.0.193 [host down]
+Nmap scan report for 172.25.0.194 [host down]
+Nmap scan report for 172.25.0.195 [host down]
+Nmap scan report for 172.25.0.196 [host down]
+Nmap scan report for 172.25.0.197 [host down]
+Nmap scan report for 172.25.0.198 [host down]
+Nmap scan report for 172.25.0.199 [host down]
+Nmap scan report for 172.25.0.200 [host down]
+Nmap scan report for 172.25.0.201 [host down]
+Nmap scan report for 172.25.0.202 [host down]
+Nmap scan report for 172.25.0.203 [host down]
+Nmap scan report for 172.25.0.204 [host down]
+Nmap scan report for 172.25.0.205 [host down]
+Nmap scan report for 172.25.0.206 [host down]
+Nmap scan report for 172.25.0.207 [host down]
+Nmap scan report for 172.25.0.208 [host down]
+Nmap scan report for 172.25.0.209 [host down]
+Nmap scan report for 172.25.0.210 [host down]
+Nmap scan report for 172.25.0.211 [host down]
+Nmap scan report for 172.25.0.212 [host down]
+Nmap scan report for 172.25.0.213 [host down]
+Nmap scan report for 172.25.0.214 [host down]
+Nmap scan report for 172.25.0.215 [host down]
+Nmap scan report for 172.25.0.216 [host down]
+Nmap scan report for 172.25.0.217 [host down]
+Nmap scan report for 172.25.0.218 [host down]
+Nmap scan report for 172.25.0.219 [host down]
+Nmap scan report for 172.25.0.220 [host down]
+Nmap scan report for 172.25.0.221 [host down]
+Nmap scan report for 172.25.0.222 [host down]
+Nmap scan report for 172.25.0.223 [host down]
+Nmap scan report for 172.25.0.224 [host down]
+Nmap scan report for 172.25.0.225 [host down]
+Nmap scan report for 172.25.0.226 [host down]
+Nmap scan report for 172.25.0.227 [host down]
+Nmap scan report for 172.25.0.228 [host down]
+Nmap scan report for 172.25.0.229 [host down]
+Nmap scan report for 172.25.0.230 [host down]
+Nmap scan report for 172.25.0.231 [host down]
+Nmap scan report for 172.25.0.232 [host down]
+Nmap scan report for 172.25.0.233 [host down]
+Nmap scan report for 172.25.0.234 [host down]
+Nmap scan report for 172.25.0.235 [host down]
+Nmap scan report for 172.25.0.236 [host down]
+Nmap scan report for 172.25.0.237 [host down]
+Nmap scan report for 172.25.0.238 [host down]
+Nmap scan report for 172.25.0.239 [host down]
+Nmap scan report for 172.25.0.240 [host down]
+Nmap scan report for 172.25.0.241 [host down]
+Nmap scan report for 172.25.0.242 [host down]
+Nmap scan report for 172.25.0.243 [host down]
+Nmap scan report for 172.25.0.244 [host down]
+Nmap scan report for 172.25.0.245 [host down]
+Nmap scan report for 172.25.0.246 [host down]
+Nmap scan report for 172.25.0.247 [host down]
+Nmap scan report for 172.25.0.248 [host down]
+Nmap scan report for 172.25.0.249 [host down]
+Nmap scan report for 172.25.0.250 [host down]
+Nmap scan report for 172.25.0.251 [host down]
+Nmap scan report for 172.25.0.252 [host down]
+Nmap scan report for 172.25.0.253 [host down]
+Nmap scan report for 172.25.0.254 [host down]
+Nmap scan report for 172.25.0.255 [host down]
+Initiating SYN Stealth Scan at 12:31
+Scanning 7 hosts [1049 ports/host]
+Discovered open port 3306/tcp on 172.25.0.12
+Discovered open port 554/tcp on 172.25.0.40
+Discovered open port 80/tcp on 172.25.0.11
+Discovered open port 80/tcp on 172.25.0.10
+Discovered open port 22/tcp on 172.25.0.20
+Discovered open port 80/tcp on 172.25.0.30
+Discovered open port 8080/tcp on 172.25.0.66
+Discovered open port 22/tcp on 172.25.0.30
+Discovered open port 80/tcp on 172.25.0.40
+Discovered open port 443/tcp on 172.25.0.10
+Discovered open port 21/tcp on 172.25.0.20
+Discovered open port 23/tcp on 172.25.0.40
+Discovered open port 6379/tcp on 172.25.0.66
+Completed SYN Stealth Scan against 172.25.0.10 in 0.09s (6 hosts left)
+Completed SYN Stealth Scan against 172.25.0.11 in 0.09s (5 hosts left)
+Completed SYN Stealth Scan against 172.25.0.12 in 0.09s (4 hosts left)
+Completed SYN Stealth Scan against 172.25.0.20 in 0.09s (3 hosts left)
+Completed SYN Stealth Scan against 172.25.0.30 in 0.09s (2 hosts left)
+Completed SYN Stealth Scan against 172.25.0.40 in 0.09s (1 host left)
+Completed SYN Stealth Scan at 12:31, 0.09s elapsed (7343 total ports)
+Initiating Service scan at 12:31
+Scanning 13 services on 7 hosts
+Stats: 0:00:08 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 38.46% done; ETC: 12:31 (0:00:10 remaining)
+Stats: 0:00:13 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 76.92% done; ETC: 12:31 (0:00:03 remaining)
+Stats: 0:00:14 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 76.92% done; ETC: 12:31 (0:00:04 remaining)
+Stats: 0:00:18 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:31 (0:00:03 remaining)
+Stats: 0:00:23 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:31 (0:00:04 remaining)
+Stats: 0:00:28 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:31 (0:00:05 remaining)
+Stats: 0:00:33 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:31 (0:00:06 remaining)
+Stats: 0:00:38 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:31 (0:00:07 remaining)
+Stats: 0:00:43 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:31 (0:00:07 remaining)
+Stats: 0:00:48 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:08 remaining)
+Stats: 0:00:53 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:09 remaining)
+Stats: 0:00:58 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:10 remaining)
+Stats: 0:01:03 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:11 remaining)
+Stats: 0:01:08 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:12 remaining)
+Stats: 0:01:13 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:13 remaining)
+Stats: 0:01:18 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:14 remaining)
+Stats: 0:01:23 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 84.62% done; ETC: 12:32 (0:00:15 remaining)
+Stats: 0:01:28 elapsed; 247 hosts completed (7 up), 7 undergoing Service Scan
+Service scan Timing: About 92.31% done; ETC: 12:32 (0:00:07 remaining)
+Completed Service scan at 12:32, 86.14s elapsed (13 services on 7 hosts)
+Initiating OS detection (try #1) against 7 hosts
+Retrying OS detection (try #2) against 7 hosts
+Retrying OS detection (try #3) against 7 hosts
+Retrying OS detection (try #4) against 7 hosts
+Retrying OS detection (try #5) against 7 hosts
+NSE: Script scanning 7 hosts.
+Initiating NSE at 12:32
+Stats: 0:01:39 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 663 (0 waiting)
+NSE Timing: About 0.00% done
+Stats: 0:01:40 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 23 (12 waiting)
+NSE Timing: About 96.53% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:41 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:42 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:43 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:44 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:45 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:46 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:47 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 12 (12 waiting)
+NSE Timing: About 98.19% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:48 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 10 (10 waiting)
+NSE Timing: About 98.49% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:49 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 10 (9 waiting)
+NSE Timing: About 98.49% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:50 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 5 (3 waiting)
+NSE Timing: About 99.25% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:51 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 2 (2 waiting)
+NSE Timing: About 99.70% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:52 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 2 (2 waiting)
+NSE Timing: About 99.70% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:53 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 2 (2 waiting)
+NSE Timing: About 99.70% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:54 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 2 (2 waiting)
+NSE Timing: About 99.70% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:55 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 1 (1 waiting)
+NSE Timing: About 99.85% done; ETC: 12:32 (0:00:00 remaining)
+Stats: 0:01:56 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 1 (1 waiting)
+NSE Timing: About 99.85% done; ETC: 12:33 (0:00:00 remaining)
+Stats: 0:01:57 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 1 (1 waiting)
+NSE Timing: About 99.85% done; ETC: 12:33 (0:00:00 remaining)
+Stats: 0:01:58 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 1 (1 waiting)
+NSE Timing: About 99.85% done; ETC: 12:33 (0:00:00 remaining)
+Stats: 0:01:59 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 1 (1 waiting)
+NSE Timing: About 99.85% done; ETC: 12:33 (0:00:00 remaining)
+Completed NSE at 12:33, 20.08s elapsed
+Initiating NSE at 12:33
+Stats: 0:02:00 elapsed; 247 hosts completed (7 up), 7 undergoing Script Scan
+NSE: Active NSE Script Threads: 5 (4 waiting)
+NSE Timing: About 87.18% done; ETC: 12:33 (0:00:00 remaining)
+Completed NSE at 12:33, 1.04s elapsed
+Nmap scan report for 172.25.0.10
+Host is up (0.000088s latency).
+Not shown: 1047 closed tcp ports (reset)
+PORT    STATE SERVICE  VERSION
+80/tcp  open  http     nginx 1.30.5
+|_http-title: Campus ERP - Login
+|_http-server-header: nginx/1.30.5
+443/tcp open  ssl/http nginx 1.30.5
+| ssl-cert: Subject: commonName=erp.campus.local
+| Issuer: commonName=erp.campus.local
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2026-10-10T11:07:09
+| Not valid after:  2027-10-10T11:07:09
+| MD5:   e2f4:bdad:5546:df41:ff14:a1e9:dc3b:ddf5
+| SHA-1: 64a1:95be:bfd4:e056:731f:92a7:3888:2528:27cc:0899
+| -----BEGIN CERTIFICATE-----
+| MIIDFzCCAf+gAwIBAgIUdTOhk+RVI5bHXjhJdE2Hsby2lscwDQYJKoZIhvcNAQEL
+| BQAwGzEZMBcGA1UEAwwQZXJwLmNhbXB1cy5sb2NhbDAeFw0yNjEwMTAxMTA3MDla
+| Fw0yNzEwMTAxMTA3MDlaMBsxGTAXBgNVBAMMEGVycC5jYW1wdXMubG9jYWwwggEi
+| MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCzBCbR5EjLuJF6PFy0WUSivaHS
+| Tnt2W64QIS4AtcRxNcWliDa3nAhjNW6QyMyZlWOC7H5IL1qatVMEt1tB/66a+m8W
+| Jn3uX9Wi+XaVMSAWY6I0BUZoNSspv8MLXOK4I5hTq4k2m8EqdJ0iQ9Cd5Zi4UDDC
+| qMWvkvQywtuIOxKiL6FwllBI4tQSG4TpNWaBBTTQ39OCDmbgZ+2ym66cP2NTUKhY
+| J200+MaOxuncynFPoANYsgJSVjGKKpcY1+MI8nZH3MFtNNopzJAnU3WBAnuHJ9tF
+| 52evjFoWvnKERvAA9iiJg7pI4PgjlDRDJHHz9y+HL9x56TA00EBPRGLbRH7NAgMB
+| AAGjUzBRMB0GA1UdDgQWBBS7UXdfNRMyzfgy2gKIA6yYtICB3jAfBgNVHSMEGDAW
+| gBS7UXdfNRMyzfgy2gKIA6yYtICB3jAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3
+| DQEBCwUAA4IBAQBeQQ4b+7S7jwm3fllpSsZHi3M3Xu3u77/9ou8qZNKFPXobeu7e
+| XqmQ8X2Wa/Bp8x5WSTeYyzSJFMyq70dlESMMpA+EXYeNXIo8Zl2vrlS/ELgkXuoL
+| qHAEwW3eq34yTwMXl4376Qp1oBbRJZSAd0+i3H6RvHIF6gBrKZx+Zfm1IVN/vXfN
+| /ujSeDyeYwiFJzUT6bcROzg8QJcYih2cEDq+YVZrrW5PDg0hSeEfGc8+/Q+dLvhh
+| TXelvzmyTXpYEuMHkxfOQRLTePDM5es2DuGcCP4N4NtDg4lPVp0C47CKAK/JHZRh
+| nA2Jcik7lgre/Ec+/O38Oqd50H8dv3j2uR0L
+|_-----END CERTIFICATE-----
+|_http-server-header: nginx/1.30.5
+|_http-title: Campus ERP - Login
+MAC Address: 3C:D9:2B:10:00:10 (Hewlett Packard)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=80%CT=1%CU=38707%PV=Y%DS=1%DC=D%G=Y%M=3CD92B%
+OS:TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=100%GCD=1%ISR=10E%TI=Z%CI=Z%II=
+OS:I%TS=21)SEQ(SP=102%GCD=1%ISR=106%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=103%GCD=1%I
+OS:SR=109%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=104%GCD=1%ISR=102%TI=Z%CI=Z%II=I%TS=2
+OS:1)SEQ(SP=105%GCD=1%ISR=107%TI=Z%CI=Z%II=I%TS=22)OPS(O1=M5B4ST11NW9%O2=M5
+OS:B4ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M5B4ST11NW9%O6=M5B4ST11)WIN(
+OS:W1=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88)ECN(R=Y%DF=Y%T=40%W=FAF0
+OS:%O=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R
+OS:=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%
+OS:A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%
+OS:DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIP
+OS:L=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:38 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=259 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+Nmap scan report for 172.25.0.11
+Host is up (0.000018s latency).
+Not shown: 1048 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.49 ((Unix))
+|_http-title: Dept. of Computer Engineering
+|_http-server-header: Apache/2.4.49 (Unix)
+MAC Address: 3C:D9:2B:10:00:11 (Hewlett Packard)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=80%CT=1%CU=33821%PV=Y%DS=1%DC=D%G=Y%M=3CD92B%
+OS:TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=105%GCD=1%ISR=105%TI=Z%CI=Z%II=
+OS:I%TS=21)SEQ(SP=105%GCD=1%ISR=10F%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=105%GCD=2%I
+OS:SR=105%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=106%GCD=1%ISR=10B%TI=Z%CI=Z%II=I%TS=2
+OS:1)SEQ(SP=FB%GCD=1%ISR=FE%TI=Z%CI=Z%II=I%TS=22)OPS(O1=M5B4ST11NW9%O2=M5B4
+OS:ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M5B4ST11NW9%O6=M5B4ST11)WIN(W1
+OS:=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88)ECN(R=Y%DF=Y%T=40%W=FAF0%O
+OS:=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N
+OS:)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=
+OS:S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF
+OS:=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=
+OS:G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:41 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=262 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+Nmap scan report for 172.25.0.12
+Host is up (0.000023s latency).
+Not shown: 1048 closed tcp ports (reset)
+PORT     STATE SERVICE VERSION
+3306/tcp open  mysql   MySQL 5.7.44
+| mysql-info: 
+|   Protocol: 10
+|   Version: 5.7.44
+|   Thread ID: 27
+|   Capabilities flags: 65535
+|   Some Capabilities: Support41Auth, FoundRows, LongPassword, Speaks41ProtocolOld, Speaks41ProtocolNew, SupportsLoadDataLocal, LongColumnFlag, ODBCClient, SupportsCompression, IgnoreSigpipes, ConnectWithDatabase, IgnoreSpaceBeforeParenthesis, DontAllowDatabaseTableColumn, SwitchToSSLAfterHandshake, SupportsTransactions, InteractiveClient, SupportsAuthPlugins, SupportsMultipleStatments, SupportsMultipleResults
+|   Status: Autocommit
+|   Salt: Z}7CuYdKH\x1C\x0En+\x10U[Ie`\x01
+|_  Auth Plugin Name: mysql_native_password
+| banner: J\x00\x00\x00\x0A5.7.44\x00\x1C\x00\x00\x00\x13X7\tg%v\x00\xFF\
+| xFF\x08\x02\x00\xFF\xC1\x15\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00Z=&B
+|_Z\x14\x15J1h\x04\x17\x00mysql_native_password\x00
+| ssl-cert: Subject: commonName=MySQL_Server_5.7.44_Auto_Generated_Server_Certificate
+| Issuer: commonName=MySQL_Server_5.7.44_Auto_Generated_CA_Certificate
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2026-10-10T11:33:31
+| Not valid after:  2036-10-07T11:33:31
+| MD5:   ac82:7e1b:8d79:d277:daa3:b4fb:1de0:d1f8
+| SHA-1: c2cd:8dc5:93e1:ba86:32cb:072f:7a15:a1d0:6c8c:f3f9
+| -----BEGIN CERTIFICATE-----
+| MIIDBzCCAe+gAwIBAgIBAjANBgkqhkiG9w0BAQsFADA8MTowOAYDVQQDDDFNeVNR
+| TF9TZXJ2ZXJfNS43LjQ0X0F1dG9fR2VuZXJhdGVkX0NBX0NlcnRpZmljYXRlMB4X
+| DTI2MTAxMDExMzMzMVoXDTM2MTAwNzExMzMzMVowQDE+MDwGA1UEAww1TXlTUUxf
+| U2VydmVyXzUuNy40NF9BdXRvX0dlbmVyYXRlZF9TZXJ2ZXJfQ2VydGlmaWNhdGUw
+| ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDNf24U8/yb+8fGR1AnfZsG
+| s0sDkJaT/+F00oJZZgdmn986de+snCcWTacmpx1Tha8M8Ln9lg+FMlOUqVYv0mXl
+| Q+5i82X9LhCMl+XI5HTEOA21bozSIyS0bTxbvIPSIpfmqybPtVqShmtb68J7Y+mp
+| fg26oknzClQxbmdspQ5ZxE9qZs6DmCqHIXCxAWn2bDcZKqvl+59Skm4bmchb5m+Y
+| Rglw/rdiFCrnuxNYROGUbS2Ha9giyHfXFT+o32ErAn69leeaLlRIxYCRUReS24HF
+| TA8aZN6e1TkajfjrD4YYuWVfNcZw4XWlP9LXGkknqAXaJZFadx0l1EsAdxsbdvy9
+| AgMBAAGjEDAOMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQELBQADggEBAD6NngSw
+| xtya6hDpopsJuQZ2BuMhdCIibnRGuhyHqRL/fEbc9dWqj62LHYZHLFqi3T8n9QQz
+| DFLoVJp2u54tzsGGQm1pT4G1l2C0Wzdwosxr1kYR+WWbsYpGHwU2EEVEyoD6X/KL
+| uS5lTHwAKhF3fC1sBPKkpo13UKl8wGrY7k8T6SfX9am3mtCY0yzHU5twZp7BBisK
+| b4lyyv8HDYko/520CAbgyZghzqe9UUAQeRHQc4/GoYP6fzdfvuP2CXN65B7HwBvI
+| 1kqlsJd0tIsTMFvWjfn7J88b6ddfofLwqT6GS5aZd0mfmvAQoCLaY89Wyte6zXWX
+| 0uxJkYF79PnxChA=
+|_-----END CERTIFICATE-----
+MAC Address: 3C:D9:2B:10:00:12 (Hewlett Packard)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=3306%CT=1%CU=44756%PV=Y%DS=1%DC=D%G=Y%M=3CD92
+OS:B%TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=104%GCD=1%ISR=10C%TI=Z%CI=Z%I
+OS:I=I%TS=21)SEQ(SP=105%GCD=1%ISR=10B%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=106%GCD=1
+OS:%ISR=107%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=FB%GCD=1%ISR=10C%TI=Z%CI=Z%II=I%TS=
+OS:22)OPS(O1=M5B4ST11NW9%O2=M5B4ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M
+OS:5B4ST11NW9%O6=M5B4ST11)WIN(W1=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE
+OS:88)ECN(R=Y%DF=Y%T=40%W=FAF0%O=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=
+OS:S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q
+OS:=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A
+OS:%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y
+OS:%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T
+OS:=40%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:42 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=251 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+Nmap scan report for 172.25.0.20
+Host is up (0.000044s latency).
+Not shown: 1047 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     BusyBox ftpd (D-Link DCS-932L IP-Cam camera)
+|_banner: 220 Operation successful
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_drwxr-xr-x    2      4096 Oct 10 11:18 pub
+22/tcp open  ssh     Dropbear sshd 2025.88 (protocol 2.0)
+| banner: SSH-2.0-dropbear_2025.88\x0D\x0A\x00\x00\x02\x1C\x07\x14\xDA\xA
+| 0#\xF8\xDA\xE2'''\xDF\x80\x8F\x92\x03\xCB\xE8\x00\x00\x01\x0Csntrup761x
+|_25519-sha512,sntrup761x25519-sha512@openssh.com,mlkem768x25519-sha25...
+MAC Address: 18:DB:F2:20:00:20 (Dell)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=21%CT=1%CU=33982%PV=Y%DS=1%DC=D%G=Y%M=18DBF2%
+OS:TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=102%GCD=1%ISR=10B%TI=Z%CI=Z%II=
+OS:I%TS=21)SEQ(SP=104%GCD=1%ISR=108%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=105%GCD=1%I
+OS:SR=10B%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=106%GCD=1%ISR=108%TI=Z%CI=Z%II=I%TS=2
+OS:0)SEQ(SP=106%GCD=1%ISR=10A%TI=Z%CI=Z%II=I%TS=21)OPS(O1=M5B4ST11NW9%O2=M5
+OS:B4ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M5B4ST11NW9%O6=M5B4ST11)WIN(
+OS:W1=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88)ECN(R=Y%DF=Y%T=40%W=FAF0
+OS:%O=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R
+OS:=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%
+OS:A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%
+OS:DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIP
+OS:L=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:42 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=262 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OS: Linux; Device: webcam; CPE: cpe:/h:dlink:dcs-932l, cpe:/o:linux:linux_kernel
+
+Nmap scan report for 172.25.0.30
+Host is up (0.000039s latency).
+Not shown: 1047 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     Dropbear sshd 2025.88 (protocol 2.0)
+| banner: SSH-2.0-dropbear_2025.88\x0D\x0A\x00\x00\x02\x1C\x07\x14\x0Eb\x
+| 9EO(+n\x02\x0DN\xB0nVO\x1A\xEF\x00\x00\x01\x0Csntrup761x25519-sha512,sn
+|_trup761x25519-sha512@openssh.com,mlkem768x25519-sha256,curve25519-sh...
+80/tcp open  http
+|_http-title: AP-Block-A Admin
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.1 404 Not Found
+|     Date: Sat, 10 Oct 2026 12:31:17 GMT
+|     Connection: close
+|     Content-type: text/html
+|     <HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD>
+|     <BODY><H1>404 Not Found</H1>
+|     requested URL was not found
+|     </BODY></HTML>
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Date: Sat, 10 Oct 2026 12:31:12 GMT
+|     Connection: close
+|     Content-type: text/html
+|     Accept-Ranges: bytes
+|     Last-Modified: Sat, 10 Oct 2026 11:06:59 GMT
+|     ETag: "6aca1c53-82"
+|     Content-Length: 130
+|     <html><head><title>AP-Block-A Admin</title></head><body><h1>Wireless AP Admin</h1><p>Default login: admin/admin</p></body></html>
+|   HTTPOptions: 
+|     HTTP/1.1 501 Not Implemented
+|     Date: Sat, 10 Oct 2026 12:31:12 GMT
+|     Connection: close
+|     Content-type: text/html
+|     <HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD>
+|     <BODY><H1>501 Not Implemented</H1>
+|     requested method is not recognized
+|     </BODY></HTML>
+|   Help, SSLSessionReq: 
+|     HTTP/1.1 400 Bad Request
+|     Date: Sat, 10 Oct 2026 12:31:32 GMT
+|     Connection: close
+|     Content-type: text/html
+|     <HTML><HEAD><TITLE>400 Bad Request</TITLE></HEAD>
+|     <BODY><H1>400 Bad Request</H1>
+|     Unsupported method
+|     </BODY></HTML>
+|   RTSPRequest: 
+|     HTTP/1.1 400 Bad Request
+|     Date: Sat, 10 Oct 2026 12:31:12 GMT
+|     Connection: close
+|     Content-type: text/html
+|     <HTML><HEAD><TITLE>400 Bad Request</TITLE></HEAD>
+|     <BODY><H1>400 Bad Request</H1>
+|     Unsupported method
+|_    </BODY></HTML>
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port80-TCP:V=7.95%I=7%D=10/10%Time=6ACA3010%P=x86_64-pc-linux-gnu%r(Get
+SF:Request,154,"HTTP/1\.1\x20200\x20OK\r\nDate:\x20Sat,\x2010\x20Oct\x2020
+SF:26\x2012:31:12\x20GMT\r\nConnection:\x20close\r\nContent-type:\x20text/
+SF:html\r\nAccept-Ranges:\x20bytes\r\nLast-Modified:\x20Sat,\x2010\x20Oct\
+SF:x202026\x2011:06:59\x20GMT\r\nETag:\x20\"6aca1c53-82\"\r\nContent-Lengt
+SF:h:\x20130\r\n\r\n<html><head><title>AP-Block-A\x20Admin</title></head><
+SF:body><h1>Wireless\x20AP\x20Admin</h1><p>Default\x20login:\x20admin/admi
+SF:n</p></body></html>\n")%r(HTTPOptions,100,"HTTP/1\.1\x20501\x20Not\x20I
+SF:mplemented\r\nDate:\x20Sat,\x2010\x20Oct\x202026\x2012:31:12\x20GMT\r\n
+SF:Connection:\x20close\r\nContent-type:\x20text/html\r\n\r\n<HTML><HEAD><
+SF:TITLE>501\x20Not\x20Implemented</TITLE></HEAD>\n<BODY><H1>501\x20Not\x2
+SF:0Implemented</H1>\nThe\x20requested\x20method\x20is\x20not\x20recognize
+SF:d\n</BODY></HTML>\n")%r(RTSPRequest,E0,"HTTP/1\.1\x20400\x20Bad\x20Requ
+SF:est\r\nDate:\x20Sat,\x2010\x20Oct\x202026\x2012:31:12\x20GMT\r\nConnect
+SF:ion:\x20close\r\nContent-type:\x20text/html\r\n\r\n<HTML><HEAD><TITLE>4
+SF:00\x20Bad\x20Request</TITLE></HEAD>\n<BODY><H1>400\x20Bad\x20Request</H
+SF:1>\nUnsupported\x20method\n</BODY></HTML>\n")%r(FourOhFourRequest,E7,"H
+SF:TTP/1\.1\x20404\x20Not\x20Found\r\nDate:\x20Sat,\x2010\x20Oct\x202026\x
+SF:2012:31:17\x20GMT\r\nConnection:\x20close\r\nContent-type:\x20text/html
+SF:\r\n\r\n<HTML><HEAD><TITLE>404\x20Not\x20Found</TITLE></HEAD>\n<BODY><H
+SF:1>404\x20Not\x20Found</H1>\nThe\x20requested\x20URL\x20was\x20not\x20fo
+SF:und\n</BODY></HTML>\n")%r(Help,E0,"HTTP/1\.1\x20400\x20Bad\x20Request\r
+SF:\nDate:\x20Sat,\x2010\x20Oct\x202026\x2012:31:32\x20GMT\r\nConnection:\
+SF:x20close\r\nContent-type:\x20text/html\r\n\r\n<HTML><HEAD><TITLE>400\x2
+SF:0Bad\x20Request</TITLE></HEAD>\n<BODY><H1>400\x20Bad\x20Request</H1>\nU
+SF:nsupported\x20method\n</BODY></HTML>\n")%r(SSLSessionReq,E0,"HTTP/1\.1\
+SF:x20400\x20Bad\x20Request\r\nDate:\x20Sat,\x2010\x20Oct\x202026\x2012:31
+SF::32\x20GMT\r\nConnection:\x20close\r\nContent-type:\x20text/html\r\n\r\
+SF:n<HTML><HEAD><TITLE>400\x20Bad\x20Request</TITLE></HEAD>\n<BODY><H1>400
+SF:\x20Bad\x20Request</H1>\nUnsupported\x20method\n</BODY></HTML>\n");
+MAC Address: 24:A4:3C:30:00:30 (Ubiquiti)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=22%CT=1%CU=34445%PV=Y%DS=1%DC=D%G=Y%M=24A43C%
+OS:TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=104%GCD=1%ISR=107%TI=Z%CI=Z%II=
+OS:I%TS=21)SEQ(SP=105%GCD=1%ISR=10E%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=106%GCD=1%I
+OS:SR=10D%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=FE%GCD=1%ISR=10B%TI=Z%CI=Z%II=I%TS=21
+OS:)OPS(O1=M5B4ST11NW9%O2=M5B4ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M5B
+OS:4ST11NW9%O6=M5B4ST11)WIN(W1=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88
+OS:)ECN(R=Y%DF=Y%T=40%W=FAF0%O=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+
+OS:%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+OS:T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A
+OS:=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%D
+OS:F=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=4
+OS:0%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:42 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=262 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 172.25.0.40
+Host is up (0.000015s latency).
+Not shown: 1046 closed tcp ports (reset)
+PORT    STATE SERVICE VERSION
+23/tcp  open  telnet  Coolstream set-top box telnetd 1.14.0 or later
+| banner: \xFF\xFD\x01\xFF\xFD\x1F\xFF\xFB\x01\xFF\xFB\x03\x0D\x0D\x0A/ #
+|_ \x1B[6n
+80/tcp  open  http    IPCam-Webs/2.0 
+|_http-trane-info: Problem with XML parsing of /evox/about
+|_http-server-header: IPCam-Webs/2.0 
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.0 200 OK
+|     Server: IPCam-Webs/2.0 
+|     Date: Sat, 10 Oct 2026 12:31:17 GMT
+|     Content-Type: text/html
+|     <html><head><title>IP Camera - Main Gate</title></head><body><h1>Network Camera</h1></body></html>
+|   GetRequest: 
+|     HTTP/1.0 200 OK
+|     Server: IPCam-Webs/2.0 
+|     Date: Sat, 10 Oct 2026 12:31:12 GMT
+|     Content-Type: text/html
+|     <html><head><title>IP Camera - Main Gate</title></head><body><h1>Network Camera</h1></body></html>
+|   HTTPOptions: 
+|     HTTP/1.0 501 Unsupported method ('OPTIONS')
+|     Server: IPCam-Webs/2.0 
+|     Date: Sat, 10 Oct 2026 12:31:12 GMT
+|     Connection: close
+|     Content-Type: text/html;charset=utf-8
+|     Content-Length: 360
+|     <!DOCTYPE HTML>
+|     <html lang="en">
+|     <head>
+|     <meta charset="utf-8">
+|     <title>Error response</title>
+|     </head>
+|     <body>
+|     <h1>Error response</h1>
+|     <p>Error code: 501</p>
+|     <p>Message: Unsupported method ('OPTIONS').</p>
+|     <p>Error code explanation: 501 - Server does not support this operation.</p>
+|     </body>
+|     </html>
+|   RTSPRequest: 
+|     <!DOCTYPE HTML>
+|     <html lang="en">
+|     <head>
+|     <meta charset="utf-8">
+|     <title>Error response</title>
+|     </head>
+|     <body>
+|     <h1>Error response</h1>
+|     <p>Error code: 400</p>
+|     <p>Message: Bad request version ('RTSP/1.0').</p>
+|     <p>Error code explanation: 400 - Bad request syntax or unsupported method.</p>
+|     </body>
+|_    </html>
+554/tcp open  rtsp
+|_rtsp-methods: OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN
+| fingerprint-strings: 
+|   FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, RTSPRequest: 
+|     RTSP/1.0 200 OK
+|     CSeq: 1
+|     Server: IPCam RTSP Server 1.0
+|     Public: OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN
+|   SIPOptions: 
+|     RTSP/1.0 200 OK
+|     CSeq: 42 OPTIONS
+|     Server: IPCam RTSP Server 1.0
+|_    Public: OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port80-TCP:V=7.95%I=7%D=10/10%Time=6ACA3010%P=x86_64-pc-linux-gnu%r(Get
+SF:Request,CC,"HTTP/1\.0\x20200\x20OK\r\nServer:\x20IPCam-Webs/2\.0\x20\r\
+SF:nDate:\x20Sat,\x2010\x20Oct\x202026\x2012:31:12\x20GMT\r\nContent-Type:
+SF:\x20text/html\r\n\r\n<html><head><title>IP\x20Camera\x20-\x20Main\x20Ga
+SF:te</title></head><body><h1>Network\x20Camera</h1></body></html>")%r(HTT
+SF:POptions,224,"HTTP/1\.0\x20501\x20Unsupported\x20method\x20\('OPTIONS'\
+SF:)\r\nServer:\x20IPCam-Webs/2\.0\x20\r\nDate:\x20Sat,\x2010\x20Oct\x2020
+SF:26\x2012:31:12\x20GMT\r\nConnection:\x20close\r\nContent-Type:\x20text/
+SF:html;charset=utf-8\r\nContent-Length:\x20360\r\n\r\n<!DOCTYPE\x20HTML>\
+SF:n<html\x20lang=\"en\">\n\x20\x20\x20\x20<head>\n\x20\x20\x20\x20\x20\x2
+SF:0\x20\x20<meta\x20charset=\"utf-8\">\n\x20\x20\x20\x20\x20\x20\x20\x20<
+SF:title>Error\x20response</title>\n\x20\x20\x20\x20</head>\n\x20\x20\x20\
+SF:x20<body>\n\x20\x20\x20\x20\x20\x20\x20\x20<h1>Error\x20response</h1>\n
+SF:\x20\x20\x20\x20\x20\x20\x20\x20<p>Error\x20code:\x20501</p>\n\x20\x20\
+SF:x20\x20\x20\x20\x20\x20<p>Message:\x20Unsupported\x20method\x20\('OPTIO
+SF:NS'\)\.</p>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>Error\x20code\x20explan
+SF:ation:\x20501\x20-\x20Server\x20does\x20not\x20support\x20this\x20opera
+SF:tion\.</p>\n\x20\x20\x20\x20</body>\n</html>\n")%r(RTSPRequest,16C,"<!D
+SF:OCTYPE\x20HTML>\n<html\x20lang=\"en\">\n\x20\x20\x20\x20<head>\n\x20\x2
+SF:0\x20\x20\x20\x20\x20\x20<meta\x20charset=\"utf-8\">\n\x20\x20\x20\x20\
+SF:x20\x20\x20\x20<title>Error\x20response</title>\n\x20\x20\x20\x20</head
+SF:>\n\x20\x20\x20\x20<body>\n\x20\x20\x20\x20\x20\x20\x20\x20<h1>Error\x2
+SF:0response</h1>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>Error\x20code:\x2040
+SF:0</p>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>Message:\x20Bad\x20request\x2
+SF:0version\x20\('RTSP/1\.0'\)\.</p>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>E
+SF:rror\x20code\x20explanation:\x20400\x20-\x20Bad\x20request\x20syntax\x2
+SF:0or\x20unsupported\x20method\.</p>\n\x20\x20\x20\x20</body>\n</html>\n"
+SF:)%r(FourOhFourRequest,CC,"HTTP/1\.0\x20200\x20OK\r\nServer:\x20IPCam-We
+SF:bs/2\.0\x20\r\nDate:\x20Sat,\x2010\x20Oct\x202026\x2012:31:17\x20GMT\r\
+SF:nContent-Type:\x20text/html\r\n\r\n<html><head><title>IP\x20Camera\x20-
+SF:\x20Main\x20Gate</title></head><body><h1>Network\x20Camera</h1></body><
+SF:/html>");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port554-TCP:V=7.95%I=7%D=10/10%Time=6ACA3010%P=x86_64-pc-linux-gnu%r(Ge
+SF:tRequest,6D,"RTSP/1\.0\x20200\x20OK\r\nCSeq:\x201\r\nServer:\x20IPCam\x
+SF:20RTSP\x20Server\x201\.0\r\nPublic:\x20OPTIONS,\x20DESCRIBE,\x20SETUP,\
+SF:x20PLAY,\x20TEARDOWN\r\n\r\n")%r(RTSPRequest,6D,"RTSP/1\.0\x20200\x20OK
+SF:\r\nCSeq:\x201\r\nServer:\x20IPCam\x20RTSP\x20Server\x201\.0\r\nPublic:
+SF:\x20OPTIONS,\x20DESCRIBE,\x20SETUP,\x20PLAY,\x20TEARDOWN\r\n\r\n")%r(Ge
+SF:nericLines,6D,"RTSP/1\.0\x20200\x20OK\r\nCSeq:\x201\r\nServer:\x20IPCam
+SF:\x20RTSP\x20Server\x201\.0\r\nPublic:\x20OPTIONS,\x20DESCRIBE,\x20SETUP
+SF:,\x20PLAY,\x20TEARDOWN\r\n\r\n")%r(HTTPOptions,6D,"RTSP/1\.0\x20200\x20
+SF:OK\r\nCSeq:\x201\r\nServer:\x20IPCam\x20RTSP\x20Server\x201\.0\r\nPubli
+SF:c:\x20OPTIONS,\x20DESCRIBE,\x20SETUP,\x20PLAY,\x20TEARDOWN\r\n\r\n")%r(
+SF:FourOhFourRequest,6D,"RTSP/1\.0\x20200\x20OK\r\nCSeq:\x201\r\nServer:\x
+SF:20IPCam\x20RTSP\x20Server\x201\.0\r\nPublic:\x20OPTIONS,\x20DESCRIBE,\x
+SF:20SETUP,\x20PLAY,\x20TEARDOWN\r\n\r\n")%r(SIPOptions,76,"RTSP/1\.0\x202
+SF:00\x20OK\r\nCSeq:\x2042\x20OPTIONS\r\nServer:\x20IPCam\x20RTSP\x20Serve
+SF:r\x201\.0\r\nPublic:\x20OPTIONS,\x20DESCRIBE,\x20SETUP,\x20PLAY,\x20TEA
+SF:RDOWN\r\n\r\n");
+MAC Address: 44:19:B6:40:00:40 (Hangzhou Hikvision Digital Technology)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=23%CT=1%CU=31275%PV=Y%DS=1%DC=D%G=Y%M=4419B6%
+OS:TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=103%GCD=1%ISR=10D%TI=Z%CI=Z%II=
+OS:I%TS=21)SEQ(SP=105%GCD=1%ISR=10A%TI=Z%CI=Z%II=I%TS=22)SEQ(SP=105%GCD=1%I
+OS:SR=10C%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=108%GCD=1%ISR=10B%TI=Z%CI=Z%II=I%TS=2
+OS:2)SEQ(SP=109%GCD=1%ISR=10B%TI=Z%CI=Z%II=I%TS=21)OPS(O1=M5B4ST11NW9%O2=M5
+OS:B4ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M5B4ST11NW9%O6=M5B4ST11)WIN(
+OS:W1=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88)ECN(R=Y%DF=Y%T=40%W=FAF0
+OS:%O=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R
+OS:=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%
+OS:A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%
+OS:DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIP
+OS:L=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:42 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=259 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: Device: media device
+
+Nmap scan report for 172.25.0.66
+Host is up (0.000015s latency).
+Not shown: 1047 closed tcp ports (reset)
+PORT     STATE SERVICE VERSION
+6379/tcp open  redis   Redis key-value store 8.0.4 (64 bits)
+| redis-info: 
+|   Version: 8.0.4
+|   Operating System: Linux 6.18.40.1-microsoft-standard-WSL2 x86_64
+|   Architecture: 64 bits
+|   Process ID: 8
+|   Used CPU (sys): 3.644797
+|   Used CPU (user): 1.739218
+|   Connected clients: 2
+|   Connected slaves: 0
+|   Used memory: 704.53K
+|   Role: master
+|   Bind addresses: 
+|     *
+|     -::*
+|   Client connections: 
+|_    172.25.0.5
+8080/tcp open  http    SimpleHTTPServer 0.6 (Python 3.12.15)
+|_http-server-header: SimpleHTTP/0.6 Python/3.12.15
+|_http-title: Device Panel
+MAC Address: B8:27:EB:66:00:66 (Raspberry Pi Foundation)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.95%E=4%D=10/10%OT=6379%CT=1%CU=32789%PV=Y%DS=1%DC=D%G=Y%M=B827E
+OS:B%TM=6ACA3081%P=x86_64-pc-linux-gnu)SEQ(SP=101%GCD=1%ISR=108%TI=Z%CI=Z%I
+OS:I=I%TS=22)SEQ(SP=101%GCD=1%ISR=10D%TI=Z%CI=Z%II=I%TS=22)SEQ(SP=105%GCD=1
+OS:%ISR=108%TI=Z%CI=Z%II=I%TS=21)SEQ(SP=105%GCD=2%ISR=109%TI=Z%CI=Z%II=I%TS
+OS:=21)SEQ(SP=106%GCD=1%ISR=10C%TI=Z%CI=Z%II=I%TS=22)OPS(O1=M5B4ST11NW9%O2=
+OS:M5B4ST11NW9%O3=M5B4NNT11NW9%O4=M5B4ST11NW9%O5=M5B4ST11NW9%O6=M5B4ST11)WI
+OS:N(W1=FE88%W2=FE88%W3=FE88%W4=FE88%W5=FE88%W6=FE88)ECN(R=Y%DF=Y%T=40%W=FA
+OS:F0%O=M5B4NNSNW9%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3
+OS:(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=
+OS:Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=
+OS:Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0%R
+OS:IPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)
+
+Uptime guess: 0.000 days (since Sat Oct 10 12:32:41 2026)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=261 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+NSE: Script Post-scanning.
+Initiating NSE at 12:33
+Completed NSE at 12:33, 0.00s elapsed
+Initiating NSE at 12:33
+Completed NSE at 12:33, 0.00s elapsed
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 254 IP addresses (7 hosts up) scanned in 120.96 seconds
+           Raw packets sent: 8618 (399.462KB) | Rcvd: 7844 (337.830KB)

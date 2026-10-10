@@ -5,9 +5,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
 from app.models.base import utcnow
+from app.models.user import User
 
 SCAN_PROFILES = ("quick", "standard", "deep")
-SCAN_STATUSES = ("queued", "running", "completed", "failed")
+SCAN_STATUSES = ("queued", "running", "completed", "failed", "cancelled")
+ACTIVE_STATUSES = ("queued", "running")
 
 
 class Scan(Base):
@@ -20,6 +22,7 @@ class Scan(Base):
     triggered_by: Mapped[str] = mapped_column(String(20), default="user")  # user|schedule|n8n
     requested_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
     progress: Mapped[int] = mapped_column(Integer, default=0)
+    phase: Mapped[str | None] = mapped_column(String(80))  # e.g. "Detecting services"
     hosts_up: Mapped[int] = mapped_column(Integer, default=0)
     summary: Mapped[dict] = mapped_column(JSON, default=dict)
     error: Mapped[str | None] = mapped_column(Text)
@@ -28,8 +31,9 @@ class Scan(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     hosts: Mapped[list["ScanHost"]] = relationship(  # noqa: UP037 - defined below
-        back_populates="scan", cascade="all, delete-orphan"
+        back_populates="scan", cascade="all, delete-orphan", order_by="ScanHost.id"
     )
+    requested_by: Mapped[User | None] = relationship(lazy="joined")
 
 
 class ScanHost(Base):
@@ -52,7 +56,7 @@ class ScanHost(Base):
 
     scan: Mapped[Scan] = relationship(back_populates="hosts")
     ports: Mapped[list["ScanPort"]] = relationship(  # noqa: UP037 - defined below
-        back_populates="host", cascade="all, delete-orphan"
+        back_populates="host", cascade="all, delete-orphan", order_by="ScanPort.port"
     )
 
 

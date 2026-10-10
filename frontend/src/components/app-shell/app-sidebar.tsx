@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 import { Brand } from "@/components/brand";
 import {
@@ -19,12 +20,10 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-import { NAV_GROUPS } from "./nav";
+import { isActive, NAV_GROUPS } from "./nav";
 import { UserMenu } from "./user-menu";
 
 export function AppSidebar() {
-  const pathname = usePathname();
-
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-3">
@@ -34,34 +33,11 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {NAV_GROUPS.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.title}
-                      isActive={pathname === item.href || pathname.startsWith(`${item.href}/`)}
-                    >
-                      <Link href={item.href}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    {item.phase && (
-                      <SidebarMenuBadge className="text-[10px] font-normal text-muted-foreground">
-                        Soon
-                      </SidebarMenuBadge>
-                    )}
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        {/* the active-link highlight reads the URL; on dynamic routes (/scans/[id]) that
+            value only exists at request time, so it streams in behind Suspense */}
+        <Suspense fallback={<NavGroups pathname={null} />}>
+          <ActiveNavGroups />
+        </Suspense>
       </SidebarContent>
 
       <SidebarFooter>
@@ -70,4 +46,35 @@ export function AppSidebar() {
       <SidebarRail />
     </Sidebar>
   );
+}
+
+function ActiveNavGroups() {
+  return <NavGroups pathname={usePathname()} />;
+}
+
+function NavGroups({ pathname }: { pathname: string | null }) {
+  return NAV_GROUPS.map((group) => (
+    <SidebarGroup key={group.label}>
+      <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {group.items.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item, pathname)}>
+                <Link href={item.href}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+              {item.phase && (
+                <SidebarMenuBadge className="text-[10px] font-normal text-muted-foreground">
+                  Soon
+                </SidebarMenuBadge>
+              )}
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  ));
 }

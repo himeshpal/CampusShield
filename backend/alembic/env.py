@@ -1,8 +1,7 @@
 from logging.config import fileConfig
 
-from alembic import context
-
 import app.models  # noqa: F401  (registers every table on Base.metadata)
+from alembic import context
 from app.core.db import Base, engine
 
 config = context.config

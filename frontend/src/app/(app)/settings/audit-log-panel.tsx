@@ -32,6 +32,7 @@ const FILTERS = [
   { value: "all", label: "All actions" },
   { value: "auth.", label: "Sign-ins" },
   { value: "user.", label: "User changes" },
+  { value: "scan.", label: "Scans" },
 ];
 
 export function AuditLogPanel() {
@@ -106,7 +107,7 @@ export function AuditLogPanel() {
                 <TableCell className="text-muted-foreground">{dateTime(entry.created_at)}</TableCell>
                 <TableCell className="font-medium">{entry.actor}</TableCell>
                 <TableCell>
-                  {entry.action.endsWith("_failed") ? (
+                  {entry.action.endsWith("failed") ? (
                     <Badge variant="destructive">{actionLabel(entry.action)}</Badge>
                   ) : (
                     actionLabel(entry.action)

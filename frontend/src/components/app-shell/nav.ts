@@ -26,7 +26,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Inventory",
     items: [
       { title: "Assets", href: "/assets", icon: Server, phase: 3 },
-      { title: "Network scans", href: "/scans", icon: Radar, phase: 2 },
+      { title: "Network scans", href: "/scans", icon: Radar },
     ],
   },
   {
@@ -44,3 +44,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 ];
 
 export const ALL_NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
+
+export function isActive(item: NavItem, pathname: string | null): boolean {
+  return !!pathname && (pathname === item.href || pathname.startsWith(`${item.href}/`));
+}

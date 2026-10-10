@@ -47,6 +47,19 @@ Created on first start (change them in `.env` before a real deployment):
 Five failed sign-ins for one email lock it for 15 minutes. Every sign-in and change is
 written to the audit log (Settings → Audit log).
 
+## Scanning
+
+| Profile | Measured on the lab | nmap flags (plus `-n`, target, exclusions) |
+|---|---|---|
+| Quick sweep | ~2 s | `-sS -T4` on ~35 key campus ports |
+| Standard audit | ~15 s | `-sS -sV --version-light -T4` on 1-1024 + campus extras |
+| Deep inspection | ~2 min | standard + `-O` + safe NSE scripts (ftp-anon, redis-info, ssl-cert, ...) |
+
+Explicit port lists are used because nmap's "top 1000" misses campus services such as
+Redis (6379) and RTSP (8554). Only targets inside `AUTHORIZED_SUBNETS` are accepted; the
+scanner's own address and `SCAN_EXCLUDE` are never scanned. One scan runs at a time,
+with live progress (nmap runs on a pseudo-terminal so it reports its own percentages).
+
 ## Tests
 
 ```powershell

@@ -5,6 +5,7 @@ import {
   KeyRound,
   LogIn,
   LogOut,
+  Radar,
   ShieldAlert,
   UserMinus,
   UserPen,
@@ -26,6 +27,11 @@ const ICONS: Record<string, LucideIcon> = {
   "user.seeded": UserPlus,
   "user.updated": UserPen,
   "user.deleted": UserMinus,
+  "scan.started": Radar,
+  "scan.completed": Radar,
+  "scan.cancelled": Radar,
+  "scan.cancel_requested": Radar,
+  "scan.failed": ShieldAlert,
 };
 
 export function ActivityFeed({ limit = 6 }: { limit?: number }) {
@@ -58,7 +64,7 @@ export function ActivityFeed({ limit = 6 }: { limit?: number }) {
     <ul className="space-y-4">
       {data.items.map((entry) => {
         const Icon = ICONS[entry.action] ?? KeyRound;
-        const failed = entry.action.endsWith("_failed");
+        const failed = entry.action.endsWith("failed");
         return (
           <li key={entry.id} className="flex gap-3">
             <div

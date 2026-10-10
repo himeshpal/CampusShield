@@ -18,7 +18,9 @@ import { ActivityFeed } from "@/components/activity-feed";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useActiveScan, useScanHistory } from "@/hooks/use-scans";
 
 // Values arrive with the discovery, inventory and alerting phases.
 const STATS: { label: string; icon: LucideIcon; hint: string; tone?: string }[] = [
@@ -38,33 +40,39 @@ const STATS: { label: string; icon: LucideIcon; hint: string; tone?: string }[] 
   { label: "Open alerts", icon: Bell, hint: "Changes waiting for review" },
 ];
 
-const STEPS: { title: string; text: string; href: string; icon: LucideIcon; done?: boolean }[] = [
+type StepKey = "accounts" | "scan" | "inventory" | "checklist" | "report";
+
+const STEPS: { key: StepKey; title: string; text: string; href: string; icon: LucideIcon }[] = [
   {
+    key: "accounts",
     title: "Sign in and secure accounts",
     text: "Admin and auditor roles, every action recorded in the audit log.",
     href: "/settings",
     icon: CheckCircle2,
-    done: true,
   },
   {
+    key: "scan",
     title: "Run the first network scan",
     text: "Discover live hosts, open ports and services on 172.25.0.0/24.",
     href: "/scans",
     icon: Radar,
   },
   {
+    key: "inventory",
     title: "Review the asset inventory",
     text: "Match hosts to registered assets and register unknown devices.",
     href: "/assets",
     icon: Server,
   },
   {
+    key: "checklist",
     title: "Complete the security checklist",
     text: "Record controls a scan cannot see: MFA, encryption, antivirus.",
     href: "/checklist",
     icon: ClipboardCheck,
   },
   {
+    key: "report",
     title: "Generate the audit report",
     text: "Export a PDF summary of campus security posture.",
     href: "/reports",
@@ -81,6 +89,15 @@ function greeting(): string {
 
 export function DashboardView() {
   const { user } = useCurrentUser();
+  const { data: active } = useActiveScan();
+  const { data: scans } = useScanHistory();
+  const done: Record<StepKey, boolean> = {
+    accounts: true,
+    scan: !!scans?.some((s) => s.status === "completed"),
+    inventory: false,
+    checklist: false,
+    report: false,
+  };
 
   return (
     <>
@@ -100,6 +117,12 @@ export function DashboardView() {
           </Button>
         }
       />
+
+      {active && (
+        <div className="mb-6">
+          <ActiveScanCard scan={active} canCancel={user?.role === "admin"} />
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {STATS.map(({ label, icon: Icon, hint, tone }) => (
@@ -126,15 +149,15 @@ export function DashboardView() {
           </CardHeader>
           <CardContent>
             <ol className="divide-y">
-              {STEPS.map(({ title, text, href, icon: Icon, done }) => (
-                <li key={title}>
+              {STEPS.map(({ key, title, text, href, icon: Icon }) => (
+                <li key={key}>
                   <Link
                     href={href}
                     className="group -mx-2 flex items-center gap-4 rounded-lg px-2 py-3 transition-colors hover:bg-muted/60"
                   >
                     <div
                       className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
-                        done ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                        done[key] ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                       }`}
                     >
                       <Icon className="size-4.5" />
@@ -143,7 +166,7 @@ export function DashboardView() {
                       <p className="text-sm font-medium">{title}</p>
                       <p className="truncate text-xs text-muted-foreground">{text}</p>
                     </div>
-                    {done ? (
+                    {done[key] ? (
                       <span className="text-xs font-medium text-primary">Done</span>
                     ) : (
                       <>
