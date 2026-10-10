@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
@@ -19,3 +19,5 @@ class User(TimestampMixin, Base):
     role: Mapped[str] = mapped_column(String(20), default="auditor")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # copied into every JWT; bumping it (on logout) invalidates all earlier tokens
+    token_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

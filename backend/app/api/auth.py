@@ -3,7 +3,7 @@ from datetime import timedelta
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from sqlalchemy import func, select
 
-from app.api.deps import CurrentUser, DbSession, client_ip
+from app.api.deps import CurrentUser, DbSession, client_ip, session_token, user_from_token
 from app.core.config import get_settings
 from app.core.security import create_access_token, verify_password
 from app.models import AuditLog, User
@@ -53,7 +53,7 @@ def login(body: LoginRequest, request: Request, response: Response, db: DbSessio
 
     response.set_cookie(
         settings.session_cookie,
-        create_access_token(user.id, user.role),
+        create_access_token(user.id, user.role, user.token_version),
         max_age=settings.jwt_expire_minutes * 60,
         httponly=True,
         secure=settings.cookie_secure,
@@ -65,6 +65,9 @@ def login(body: LoginRequest, request: Request, response: Response, db: DbSessio
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(user: CurrentUser, request: Request, response: Response, db: DbSession) -> None:
+    # Deleting the cookie is not enough: a copied token would stay valid until it
+    # expires. Bumping the version revokes every token issued to this user so far.
+    user.token_version += 1
     audit.record(db, "auth.logout", user=user, ip_address=client_ip(request))
     db.commit()
     response.delete_cookie(get_settings().session_cookie, path="/")
@@ -73,3 +76,9 @@ def logout(user: CurrentUser, request: Request, response: Response, db: DbSessio
 @router.get("/me", response_model=UserOut)
 def me(user: CurrentUser) -> User:
     return user
+
+
+@router.get("/session", response_model=UserOut | None)
+def session(request: Request, db: DbSession) -> User | None:
+    """The signed-in user, or null. Never 401, so the login page can check quietly."""
+    return user_from_token(db, session_token(request))

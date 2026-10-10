@@ -140,12 +140,14 @@ export function AssetDetailView() {
         </div>
       )}
 
+      {/* min-w-0: grid items default to min-width:auto, so a wide table would push the
+          column past the screen edge on phones instead of scrolling inside its card */}
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <ExposureCard asset={asset} />
           <HistoryCard asset={asset} />
         </div>
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <DetailsCard asset={asset} />
           <CriticalityCard asset={asset} />
         </div>

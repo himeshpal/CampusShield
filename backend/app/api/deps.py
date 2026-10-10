@@ -21,15 +21,28 @@ def client_ip(request: Request) -> str | None:
 
 
 def get_current_user(request: Request, db: DbSession) -> User:
+    user = user_from_token(db, session_token(request))
+    if user is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
+    return user
+
+
+def session_token(request: Request) -> str | None:
     token = request.cookies.get(get_settings().session_cookie)
     auth_header = request.headers.get("authorization", "")
     if not token and auth_header.lower().startswith("bearer "):
         token = auth_header[7:]
+    return token
 
+
+def user_from_token(db: Session, token: str | None) -> User | None:
+    """The active user a token belongs to, or None (invalid, expired, revoked, disabled)."""
     payload = decode_access_token(token) if token else None
-    user = db.get(User, int(payload["sub"])) if payload else None
-    if not user or not user.is_active:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
+    if not payload:
+        return None
+    user = db.get(User, int(payload["sub"]))
+    if not user or not user.is_active or payload.get("ver", 0) != user.token_version:
+        return None
     return user
 
 

@@ -38,8 +38,8 @@ try {
             }
             if ($Automation) { docker compose --profile automation up -d } else { docker compose up -d }
             if ($LASTEXITCODE -ne 0) { throw "docker compose up failed" }
-            Write-Host "`nAPI      http://localhost:8000/docs"
-            if ($Automation) { Write-Host "n8n      http://localhost:5678" }
+            Write-Host "`nAPI      http://127.0.0.1:8000/docs"
+            if ($Automation) { Write-Host "n8n      http://127.0.0.1:5678" }
             Write-Host "Frontend cd frontend; npm run dev  ->  http://localhost:3000"
         }
         "down" {
@@ -50,7 +50,7 @@ try {
         }
         "status" {
             docker compose --profile automation ps --format "table {{.Service}}\t{{.Status}}"
-            try { Invoke-RestMethod http://localhost:8000/api/v1/health | Format-List } catch { Write-Host "API not reachable" }
+            try { Invoke-RestMethod http://127.0.0.1:8000/api/v1/health | Format-List } catch { Write-Host "API not reachable" }
         }
     }
 } finally {

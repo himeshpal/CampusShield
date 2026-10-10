@@ -73,7 +73,7 @@ def test_me_returns_current_user(admin_client):
 
 def test_bearer_token_is_accepted(client, db):
     user = db.scalar(select(User).where(User.role == "auditor"))
-    token = create_access_token(user.id, user.role)
+    token = create_access_token(user.id, user.role, user.token_version)
     res = client.get(ME, headers={"Authorization": f"Bearer {token}"})
     assert res.status_code == 200 and res.json()["role"] == "auditor"
 
@@ -97,3 +97,30 @@ def test_logout_clears_cookie_and_is_audited(admin_client, db):
     assert res.status_code == 204
     assert admin_client.get(ME).status_code == 401
     assert db.scalar(select(AuditLog).where(AuditLog.action == "auth.logout"))
+
+
+def test_token_copied_before_logout_is_revoked(client):
+    """Regression: logout used to only delete the cookie, so a copied JWT kept working."""
+    login = client.post(LOGIN, json=creds())
+    token = login.cookies[get_settings().session_cookie]
+    bearer = {"Authorization": f"Bearer {token}"}
+    assert client.get(ME, headers=bearer).status_code == 200
+
+    assert client.post("/api/v1/auth/logout").status_code == 204
+    assert client.get(ME, headers=bearer).status_code == 401  # replay fails
+
+
+def test_new_login_after_logout_works(client):
+    client.post(LOGIN, json=creds())
+    client.post("/api/v1/auth/logout")
+    assert client.post(LOGIN, json=creds()).status_code == 200
+    assert client.get(ME).status_code == 200
+
+
+def test_session_endpoint_never_401s(client):
+    assert client.get("/api/v1/auth/session").status_code == 200
+    assert client.get("/api/v1/auth/session").json() is None
+    client.post(LOGIN, json=creds())
+    assert client.get("/api/v1/auth/session").json()["role"] == "admin"
+    garbage = client.get("/api/v1/auth/session", headers={"Authorization": "Bearer junk"})
+    assert garbage.status_code == 200

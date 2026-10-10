@@ -49,10 +49,11 @@ export function LoginForm() {
   });
   const { errors, isSubmitting } = form.formState;
 
-  // Already signed in (valid cookie)? Skip the form.
+  // Already signed in (valid cookie)? Skip the form. /auth/session answers null instead
+  // of 401, so a signed-out visitor doesn't get an error in the browser console.
   useEffect(() => {
-    api<User>("/auth/me", { redirectOn401: false })
-      .then(() => router.replace(safeNext(params.get("next"))))
+    api<User | null>("/auth/session")
+      .then((user) => user && router.replace(safeNext(params.get("next"))))
       .catch(() => {});
   }, [router, params]);
 

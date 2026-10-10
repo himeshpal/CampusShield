@@ -6,6 +6,7 @@ process gets a pseudo-terminal (pty) instead of plain pipes.
 
 import os
 import pty
+import select
 import subprocess
 import tempfile
 from collections import deque
@@ -24,10 +25,18 @@ class ScanCancelled(RuntimeError):
     pass
 
 
-def _read_lines(fd: int) -> Iterator[str]:
-    """Yield complete lines from a pty master until the child closes it."""
+def _read_lines(fd: int, heartbeat: float = 0.5) -> Iterator[str]:
+    """Yield complete lines from a pty master until the child closes it.
+
+    While nmap is silent (slow service probes can take a minute), an empty line is
+    yielded every `heartbeat` seconds so the caller can still notice a cancel request.
+    """
     buffer = b""
     while True:
+        ready, _, _ = select.select([fd], [], [], heartbeat)
+        if not ready:
+            yield ""
+            continue
         try:
             chunk = os.read(fd, 4096)
         except OSError:  # EIO: child exited and the pty closed

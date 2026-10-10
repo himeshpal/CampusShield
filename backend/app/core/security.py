@@ -17,12 +17,13 @@ def verify_password(password: str, password_hash: str) -> bool:
     return _hasher.verify(password, password_hash)
 
 
-def create_access_token(user_id: int, role: str) -> str:
+def create_access_token(user_id: int, role: str, version: int = 0) -> str:
     settings = get_settings()
     now = datetime.now(UTC)
     payload = {
         "sub": str(user_id),
         "role": role,
+        "ver": version,  # must equal users.token_version, so logout can revoke it
         "iat": now,
         "exp": now + timedelta(minutes=settings.jwt_expire_minutes),
     }

@@ -77,7 +77,8 @@ test("admin registers the rogue device from the inventory", async ({ page }) => 
 
 test("scan results link hosts to inventory records", async ({ page }) => {
   await page.goto("/scans");
-  await page.getByRole("row").nth(1).getByRole("link").click();
+  // newest *completed* scan (cancelled/failed scans have no hosts)
+  await page.getByRole("row").filter({ hasText: "Completed" }).first().getByRole("link").click();
   await expect(page.getByText(/matched to the inventory/)).toBeVisible();
   await expect(page.getByRole("link", { name: "CS-0002 · Department Website" })).toBeVisible();
   await page.getByRole("link", { name: /Unregistered$/ }).first().click();

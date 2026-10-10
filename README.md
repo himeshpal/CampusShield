@@ -30,8 +30,8 @@ cd frontend; npm install; npm run dev
 | URL | What |
 |---|---|
 | http://localhost:3000 | CampusShield UI |
-| http://localhost:8000/docs | API (Swagger) |
-| http://localhost:5678 | n8n (only with `-Automation`) |
+| http://127.0.0.1:8000/docs | API (Swagger) |
+| http://127.0.0.1:5678 | n8n (only with `-Automation`) |
 
 When you are done: `.\scripts\stack.ps1 down` (stops containers, shuts Docker/WSL to free RAM; data is kept).
 
