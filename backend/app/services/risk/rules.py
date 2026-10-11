@@ -5,17 +5,20 @@ scores are recomputed on the next start).
 score = min(100, (exposure + vulnerabilities + drift + controls + inventory) * multiplier)
 """
 
-MODEL_VERSION = 1
+# v2: the controls cap grows with the number of controls (v1 capped at 20, so with six
+#     controls the first one confirmed changed nothing)
+MODEL_VERSION = 2
 
 # component caps (points)
 EXPOSURE_CAP = 40
 VULNERABILITY_CAP = 40
 DRIFT_CAP = 10
-CONTROLS_CAP = 20
 INVENTORY_POINTS = 20  # device nobody registered
 
 DRIFT_POINTS_PER_PORT = 5
-CONTROL_POINTS = 4  # each checklist control that is not confirmed
+# each checklist control that is not confirmed; the component's cap is
+# CONTROL_POINTS x number of controls, so every confirmed control lowers the score
+CONTROL_POINTS = 4
 
 BANDS = [(75, "critical"), (50, "high"), (25, "medium"), (0, "low")]
 

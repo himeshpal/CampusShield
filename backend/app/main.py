@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 
-from app.api import assets, audit_log, auth, health, risk, scans, users
+from app.api import assets, audit_log, auth, checklist, health, risk, scans, users
 from app.core.config import get_settings
 from app.core.db import SessionLocal
 from app.services.matching import backfill_unmatched_scans
@@ -59,5 +59,6 @@ for router in (
     scans.router,
     assets.router,
     risk.router,
+    checklist.router,
 ):
     app.include_router(router, prefix="/api/v1")

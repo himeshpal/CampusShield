@@ -245,3 +245,52 @@ export type AssetSummary = {
   retired: number;
   by_type: Partial<Record<AssetType, number>>;
 };
+
+export type ControlStatus = "yes" | "no" | "na" | "unknown";
+
+export type ChecklistItem = {
+  id: number;
+  key: string;
+  label: string;
+  description: string;
+  points: number;
+};
+
+export type ChecklistEntry = {
+  status: ControlStatus;
+  evidence: string | null;
+  updated_by: string | null;
+  updated_at: string | null;
+};
+
+export type ChecklistRow = {
+  asset_id: number;
+  asset_tag: string;
+  name: string | null;
+  asset_type: AssetType;
+  status: AssetStatus;
+  risk_score: number | null;
+  risk_band: RiskBand | null;
+  entries: Record<string, ChecklistEntry>;
+  answered: number;
+};
+
+export type ChecklistMatrix = { items: ChecklistItem[]; rows: ChecklistRow[] };
+
+export type ChecklistSaveResult = {
+  row: ChecklistRow;
+  risk: {
+    before: number | null;
+    after: number | null;
+    band_before: RiskBand | null;
+    band_after: RiskBand | null;
+  };
+};
+
+export type ChecklistSummary = {
+  assets: number;
+  answered: number;
+  total: number;
+  gaps: number;
+  coverage: { key: string; label: string; counts: Record<ControlStatus, number> }[];
+};

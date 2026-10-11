@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
+  ClipboardCheck,
   KeyRound,
   LogIn,
   LogOut,
@@ -40,6 +41,7 @@ const ICONS: Record<string, LucideIcon> = {
   "asset.updated": Server,
   "asset.retired": Server,
   "asset.seeded": Server,
+  "checklist.updated": ClipboardCheck,
 };
 
 export function ActivityFeed({ limit = 6 }: { limit?: number }) {

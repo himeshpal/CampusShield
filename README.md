@@ -85,7 +85,7 @@ score = min(100, (exposure + vulnerabilities + drift + controls + inventory) x m
 | Network exposure | 40 | weight per reachable service (Telnet 15, RDP/SMB 12, FTP/DBs/Redis 10, plain HTTP 4, ...) |
 | Known vulnerabilities | 40 | CVE matches on product+version (CVSS ≥9 → 30, ≥7 → 20, ≥4 → 10), end-of-life software, NSE findings |
 | Unexpected open ports | 10 | 5 per port outside the asset's baseline |
-| Missing controls | 20 | 4 per checklist control not confirmed |
+| Missing controls | 24 | 4 per checklist control answered "missing" or not confirmed (6 controls) |
 | Inventory status | 20 | unregistered device |
 
 The multiplier comes from the asset's criticality (4-12 → 0.8x-1.5x). Bands: Low <25,
@@ -95,6 +95,14 @@ reference list (CVSS verified against NIST NVD), is defined in
 `backend/app/services/risk/rules.py` and published in Settings → Risk model. Versions
 and NSE findings are carried forward from earlier scans while a port stays open, so a
 quick sweep does not "forget" a known CVE.
+
+## Security checklist
+
+Controls a network scan cannot verify (firewall, antivirus/EDR, disk encryption, MFA,
+patch policy, default credentials) are recorded per registered asset as **In place**,
+**Missing**, **Not applicable** or **Not confirmed**, with an optional evidence note and
+who/when. Saving an answer rescores the asset immediately and is written to the audit
+log. Unregistered devices have no owner and must be registered before they are assessed.
 
 ## Tests
 

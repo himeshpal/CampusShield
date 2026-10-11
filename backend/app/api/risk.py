@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, DbSession
-from app.models import Asset, CveRef
+from app.models import Asset, ChecklistItem, CveRef
 from app.schemas.risk import RiskDriver, RiskModel, RiskSummary, TopAsset
 from app.services.risk import rules
 from app.services.risk.service import latest_scores
@@ -55,6 +55,7 @@ def risk_summary(_: CurrentUser, db: DbSession) -> RiskSummary:
 @router.get("/model", response_model=RiskModel)
 def risk_model(_: CurrentUser, db: DbSession) -> RiskModel:
     """The complete scoring model, so every number in the UI can be explained."""
+    controls = db.scalar(select(func.count(ChecklistItem.id))) or 0
     return RiskModel(
         version=rules.MODEL_VERSION,
         formula=(
@@ -77,8 +78,9 @@ def risk_model(_: CurrentUser, db: DbSession) -> RiskModel:
             {
                 "key": "controls",
                 "label": "Missing security controls",
-                "cap": rules.CONTROLS_CAP,
-                "rule": f"{rules.CONTROL_POINTS} per checklist control not confirmed",
+                "cap": rules.CONTROL_POINTS * controls,
+                "rule": f"{rules.CONTROL_POINTS} per checklist control not confirmed "
+                f"({controls} controls)",
             },
             {
                 "key": "inventory",

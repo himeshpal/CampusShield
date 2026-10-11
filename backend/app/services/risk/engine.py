@@ -6,6 +6,7 @@ UI or the PDF report can be traced back to concrete findings (the "explainable" 
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Protocol
 
 from app.services.risk import rules
@@ -205,7 +206,8 @@ def _drift(ports: Sequence[PortEvidence], ctx: AssetContext) -> Component:
 
 
 def _controls(ctx: AssetContext) -> Component:
-    component = Component("controls", "Missing security controls", rules.CONTROLS_CAP)
+    cap = rules.CONTROL_POINTS * len(ctx.controls)  # every control can count
+    component = Component("controls", "Missing security controls", cap)
     for label, status in ctx.controls.items():
         if status in ("no", "unknown"):
             text = f"{label}: not in place" if status == "no" else f"{label}: not confirmed"
@@ -244,7 +246,10 @@ def score_asset(
     raw = sum(c.points for c in components)
     criticality = sum(ctx.criteria)
     multiplier = rules.multiplier_for(criticality)
-    score = round(min(100.0, raw * multiplier), 1)
+    # exact decimal arithmetic + round-half-up, so a score checked by hand matches
+    # (binary floats would turn 73 x 1.15 = 83.95 into 83.9)
+    product = Decimal(raw) * Decimal(str(multiplier))
+    score = float(min(Decimal(100), product).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
     return RiskResult(
         score=score,
         band=rules.band_for(score),

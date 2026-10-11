@@ -54,6 +54,7 @@ const ACTIONS: Record<string, string> = {
   "asset.updated": "Updated an asset",
   "asset.registered": "Registered a device",
   "asset.retired": "Retired an asset",
+  "checklist.updated": "Updated the security checklist",
 };
 
 /** "1m 05s" style duration between two ISO timestamps (end defaults to now). */

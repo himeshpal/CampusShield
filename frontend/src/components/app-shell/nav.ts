@@ -32,7 +32,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Security",
     items: [
-      { title: "Checklist", href: "/checklist", icon: ClipboardCheck, phase: 5 },
+      { title: "Checklist", href: "/checklist", icon: ClipboardCheck },
       { title: "Alerts", href: "/alerts", icon: Bell, phase: 7 },
       { title: "Reports", href: "/reports", icon: FileText, phase: 6 },
     ],

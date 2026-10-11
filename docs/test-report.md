@@ -98,3 +98,33 @@ Next.js 16 dev server, Chromium (Playwright 1.64)
 - Only TCP services in the scan profile are assessed.
 - Until the checklist (Phase 5) is filled in, every asset carries the full 20 points
   for unconfirmed controls; they are 42 % of all campus risk points in the demo data.
+
+---
+
+# Addendum: Phase 5 (security checklist)
+
+**Results:** backend **194 / 194** (incl. live lab), E2E **34 / 34**, 0 server errors,
+0 hydration warnings, 0 console errors; checklist page fits a 390 px phone.
+
+| ID | Check | Result |
+|---|---|---|
+| TC-27 | Answering a control rescores the asset and reports before/after | Pass (API + E2E toast) |
+| TC-28 | "In place" and "Not applicable" add no points; "Missing" costs as much as unknown | Pass |
+| TC-29 | Bulk answers: one rescore, one audit entry; duplicate keys rejected | Pass |
+| TC-30 | Re-saving an identical answer creates no audit entry or new score | Pass |
+| TC-31 | Unregistered device, unknown control, bad status, 501-char evidence | 409 / 404 / 422 / 422 |
+| TC-32 | Auditor can read answers and evidence but cannot change them | Pass (403 + read-only editor) |
+| TC-33 | Editor usable on short screens (600 px and 720 px tall) | Pass after fix D-13 |
+
+## Defects found and fixed during Phase 5
+
+| ID | Defect | Root cause | Fix |
+|---|---|---|---|
+| D-12 | Confirming the first control did not change the score (67.8 → 67.8) | Risk model v1 capped controls at 20 while six controls x 4 = 24 | Cap is 4 x number of controls (model v2, rescored on start); regression test checks every confirmation lowers the score |
+| D-13 | On a 720 px-tall window the checklist editor's Save button was off-screen and unreachable | Fixed-position popover taller than the space below the cell | Popover limited to the measured available height with internal scroll and 12 px collision padding |
+| D-14 | Hand-checked score 73 x 1.15 = 83.95 shown as 83.9 | Binary floating-point rounding | Exact decimal arithmetic with round-half-up |
+
+**Observation (environment, not a defect):** the E2E suite runs ~2.5x slower than in
+earlier phases on this laptop (API endpoints still answer in < 50 ms). Windows Defender
+real-time scanning of the Next.js dev build and other running applications are the
+likely cause; a Defender exclusion for the project folder is the usual remedy.

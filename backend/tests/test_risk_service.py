@@ -39,7 +39,7 @@ def test_scan_scores_every_asset_from_its_own_evidence(admin_client, demo, monke
     scan_id = run_scan(admin_client, monkeypatch, "lab_standard.xml")
     assets = scores(admin_client)
     assert assets["CS-0002"]["risk_band"] == "high"  # Apache 2.4.49
-    assert assets["CS-0003"]["risk_score"] == 66.0  # MySQL 5.7 end-of-life
+    assert assets["CS-0003"]["risk_score"] == 71.3  # MySQL 5.7 end-of-life
     # regression: the scan being finished is still "running" while it is scored,
     # and must be the evidence used (scores were one scan behind before the fix)
     rows = db.scalars(select(RiskScore)).all()
@@ -104,9 +104,9 @@ def test_retired_assets_are_not_scored(admin_client, demo, monkeypatch):
 
 def test_never_scanned_asset_still_gets_a_score(admin_client, demo):
     res = admin_client.post(ASSETS, json={"name": "Library Kiosk", "asset_type": "workstation"})
-    # only the six unconfirmed controls: 20 points x 1.15 (default criticality 8/12)
-    assert res.json()["risk_score"] == 23.0
-    assert res.json()["risk_band"] == "low"
+    # only the six unconfirmed controls: 24 points x 1.15 (default criticality 8/12)
+    assert res.json()["risk_score"] == 27.6
+    assert res.json()["risk_band"] == "medium"
 
 
 def test_summary_and_ranking(auditor_client, admin_client, demo, monkeypatch):
@@ -119,7 +119,7 @@ def test_summary_and_ranking(auditor_client, admin_client, demo, monkeypatch):
     assert abs(sum(d["share"] for d in drivers) - 1) < 0.01
     assert drivers == sorted(drivers, key=lambda d: -d["points"])
     by_key = {d["key"]: d["points"] for d in drivers}
-    assert by_key["controls"] == 7 * 20  # nothing confirmed yet on any of 7 assets
+    assert by_key["controls"] == 7 * 24  # nothing confirmed yet on any of 7 assets
     assert by_key["inventory"] == 20  # one unregistered device
     listed = auditor_client.get(ASSETS).json()
     assert listed[0]["status"] == "unregistered"
@@ -132,7 +132,7 @@ def test_model_endpoint_publishes_the_rules(auditor_client, demo):
     assert model["version"] == rules.MODEL_VERSION
     assert len(model["cves"]) == len(rules.CVE_REFERENCE)
     assert model["cves"][0]["cvss"] >= model["cves"][-1]["cvss"]  # sorted by severity
-    assert [c["cap"] for c in model["components"]] == [40, 40, 10, 20, 20]
+    assert [c["cap"] for c in model["components"]] == [40, 40, 10, 24, 20]
 
 
 def test_startup_rescores_when_model_version_changes(db, demo, monkeypatch):

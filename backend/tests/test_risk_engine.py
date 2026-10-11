@@ -34,43 +34,43 @@ LAB = {
         [PortEvidence(80, service="http", product="nginx", version="1.30.5"),
          PortEvidence(443, service="ssl/http", product="nginx", version="1.30.5")],
         ctx(criteria=(3, 3, 3, 2), baseline=(80, 443)),
-        # (4 + 0 + 0 + 20 + 0) x 1.41
-        33.8,
+        # (4 + 0 + 0 + 24 + 0) x 1.41
+        39.5,
     ),
     "Department website (Apache 2.4.49)": (
         [PortEvidence(80, service="http", product="Apache httpd", version="2.4.49")],
         ctx(criteria=(2, 2, 2, 1), baseline=(80,)),
-        # (4 + 40[6 critical CVEs, capped] + 0 + 20 + 0) x 1.06
-        67.8,
+        # (4 + 40[6 critical CVEs, capped] + 0 + 24 + 0) x 1.06
+        72.1,
     ),
     "Student records DB (MySQL 5.7)": (
         [PortEvidence(3306, service="mysql", product="MySQL", version="5.7.44")],
         ctx(criteria=(3, 3, 2, 2), baseline=(3306,)),
-        # (10 + 20[end-of-life] + 0 + 20 + 0) x 1.32
-        66.0,
+        # (10 + 20[end-of-life] + 0 + 24 + 0) x 1.32
+        71.3,
     ),
     "Lab PC (anonymous FTP, FTP not in baseline)": (
         [PortEvidence(21, service="ftp", product="BusyBox ftpd",
                       scripts={"ftp-anon": "Anonymous FTP login allowed (FTP code 230)"}),
          PortEvidence(22, service="ssh", product="Dropbear sshd", version="2025.88")],
         ctx(criteria=(1, 1, 1, 1), baseline=(22,)),
-        # (12 + 15 + 5 + 20 + 0) x 0.8
-        41.6,
+        # (12 + 15 + 5 + 24 + 0) x 0.8
+        44.8,
     ),
     "CCTV camera (Telnet not in baseline)": (
         [PortEvidence(23, service="telnet"), PortEvidence(80, service="http"),
          PortEvidence(554, service="rtsp")],
         ctx(criteria=(2, 2, 1, 1), baseline=(80, 554)),
-        # (25 + 0 + 5 + 20 + 0) x 0.98
-        49.0,
+        # (25 + 0 + 5 + 24 + 0) x 0.98
+        52.9,
     ),
     "Rogue Raspberry Pi (open Redis, unregistered)": (
         [PortEvidence(6379, service="redis", product="Redis key-value store", version="8.0.4",
                       scripts={"redis-info": "Version: 8.0.4"}),
          PortEvidence(8080, service="http", product="SimpleHTTPServer", version="0.6")],
         ctx(status="unregistered"),
-        # (14 + 15 + 0[no baseline] + 20 + 20) x 1.15
-        79.3,
+        # (14 + 15 + 0[no baseline] + 24 + 20) x 1.15
+        84.0,
     ),
 }  # fmt: skip
 
@@ -109,6 +109,12 @@ def test_cvss_points(cvss, points):
     assert rules.cvss_points(cvss) == points
 
 
+def test_rounding_is_exact_half_up():
+    # 73 x 1.15 = 83.95 exactly -> 84.0 (float arithmetic would give 83.9)
+    result = score_asset(*LAB["Rogue Raspberry Pi (open Redis, unregistered)"][:2], CVES)
+    assert (result.raw, result.multiplier, result.score) == (73, 1.15, 84.0)
+
+
 def test_score_never_exceeds_100():
     ports = [PortEvidence(p, service="telnet") for p in range(23, 40)]
     ports.append(PortEvidence(80, product="Apache httpd", version="2.4.49"))
@@ -136,6 +142,17 @@ def test_controls_yes_and_na_count_as_covered():
     items = component(result, "controls").items
     assert [i.label for i in items] == ["MFA: not in place", "Antivirus: not confirmed"]
     assert component(result, "controls").points == 8
+
+
+def test_every_confirmed_control_lowers_the_score():
+    """Regression (model v1): the cap hid the first confirmed control entirely."""
+    previous = None
+    controls = dict(ALL_UNKNOWN)
+    for label in controls:
+        controls[label] = "yes"
+        score = score_asset([], ctx(controls=dict(controls)), CVES).score
+        assert previous is None or score < previous
+        previous = score
 
 
 def test_all_controls_confirmed_removes_control_points():
@@ -171,7 +188,7 @@ def test_service_falls_back_to_port_number():
 def test_breakdown_is_explainable():
     ports, context, expected = LAB["Department website (Apache 2.4.49)"]
     breakdown = score_asset(ports, context, CVES).breakdown()
-    assert breakdown["formula"] == "min(100, (4 + 40 + 0 + 20 + 0) x 1.06) = 67.8"
+    assert breakdown["formula"] == "min(100, (4 + 40 + 0 + 24 + 0) x 1.06) = 72.1"
     assert breakdown["model_version"] == rules.MODEL_VERSION
     assert [c["key"] for c in breakdown["components"]] == [
         "exposure", "vulnerabilities", "drift", "controls", "inventory",

@@ -34,6 +34,7 @@ const FILTERS = [
   { value: "user.", label: "User changes" },
   { value: "scan.", label: "Scans" },
   { value: "asset.", label: "Assets" },
+  { value: "checklist.", label: "Checklist" },
 ];
 
 export function AuditLogPanel() {

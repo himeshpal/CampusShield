@@ -24,6 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useAssetSummary, useRiskSummary } from "@/hooks/use-assets";
+import { useChecklistSummary } from "@/hooks/use-checklist";
 import { useActiveScan, useScanHistory } from "@/hooks/use-scans";
 import { cn } from "@/lib/utils";
 
@@ -111,6 +112,7 @@ export function DashboardView() {
   const { data: scans } = useScanHistory();
   const { data: inventory } = useAssetSummary();
   const { data: risk } = useRiskSummary();
+  const { data: checklist } = useChecklistSummary();
   const values: Record<StatKey, number | undefined> = {
     assets: inventory?.registered,
     unregistered: inventory?.unregistered,
@@ -121,7 +123,7 @@ export function DashboardView() {
     accounts: true,
     scan: !!scans?.some((s) => s.status === "completed"),
     inventory: !!inventory && inventory.registered > 0 && inventory.unregistered === 0,
-    checklist: false,
+    checklist: !!checklist && checklist.total > 0 && checklist.answered === checklist.total,
     report: false,
   };
 

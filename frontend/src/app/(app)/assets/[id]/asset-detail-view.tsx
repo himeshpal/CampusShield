@@ -13,6 +13,7 @@ import {
   MatchBadge,
 } from "@/components/assets/asset-badges";
 import { AssetFormDialog } from "@/components/assets/asset-form-dialog";
+import { AssetChecklistCard } from "@/components/checklist/asset-checklist-card";
 import { RiskMeter } from "@/components/risk/risk-meter";
 import { RiskTrend } from "@/components/risk/risk-trend";
 import { ScoreBreakdown } from "@/components/risk/score-breakdown";
@@ -165,6 +166,9 @@ export function AssetDetailView() {
         <div className="min-w-0 space-y-6">
           <DetailsCard asset={asset} />
           <CriticalityCard asset={asset} />
+          {asset.status === "registered" && (
+            <AssetChecklistCard assetId={asset.id} assetLabel={displayName(asset)} canEdit={isAdmin} />
+          )}
         </div>
       </div>
 
