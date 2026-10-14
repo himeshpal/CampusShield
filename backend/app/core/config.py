@@ -38,9 +38,11 @@ class Settings(BaseSettings):
     institution_name: str = "Campus IT network"
     report_timezone: str = "Asia/Kolkata"
 
-    # automation
+    # automation: alerts are posted to n8n, which delivers them (Telegram, email)
     n8n_webhook_url: str | None = None
     n8n_webhook_secret: str | None = None
+    # where links in notifications point (the Next.js app)
+    app_url: str = "http://localhost:3000"
 
     @property
     def authorized_subnet_list(self) -> list[str]:

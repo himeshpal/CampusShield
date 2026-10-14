@@ -39,7 +39,10 @@ try {
             if ($Automation) { docker compose --profile automation up -d } else { docker compose up -d }
             if ($LASTEXITCODE -ne 0) { throw "docker compose up failed" }
             Write-Host "`nAPI      http://127.0.0.1:8000/docs"
-            if ($Automation) { Write-Host "n8n      http://127.0.0.1:5678" }
+            if ($Automation) {
+                Write-Host "n8n      http://127.0.0.1:5678"
+                Write-Host "Mailpit  http://127.0.0.1:8025  (alert e-mails)"
+            }
             Write-Host "Frontend cd frontend; npm run dev  ->  http://localhost:3000"
         }
         "down" {

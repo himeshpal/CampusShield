@@ -32,7 +32,8 @@ def test_scan_runs_and_results_are_stored(admin_client, fake_nmap, db):
     assert apache["ports"][0]["version"] == "2.4.49"
 
     actions = list(db.scalars(select(AuditLog.action).where(AuditLog.entity_type == "scan")))
-    assert actions == ["scan.started", "scan.completed"]
+    # the rogue device is new: change detection raises an alert before completion
+    assert actions == ["scan.started", "alert.raised", "scan.completed"]
 
 
 def test_out_of_scope_target_rejected_without_running_nmap(admin_client, fake_nmap):

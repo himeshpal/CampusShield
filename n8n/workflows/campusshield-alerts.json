@@ -1,0 +1,450 @@
+{
+  "id": "csAlertsWorkflow",
+  "name": "CampusShield: deliver alerts",
+  "active": true,
+  "nodes": [
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4001",
+      "name": "Alert webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "webhookId": "5f0c2a8e-9d41-4b7a-8a33-c0a1e2b3d4f5",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campusshield-events",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4002",
+      "name": "Secret valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4002c",
+              "leftValue": "={{ !!$env.N8N_WEBHOOK_SECRET && $json.headers['x-campusshield-secret'] === $env.N8N_WEBHOOK_SECRET }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4003",
+      "name": "Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        100
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: ($json.body.alerts || []).length } }}",
+        "options": {
+          "responseCode": 202
+        }
+      }
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4004",
+      "name": "Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: 'invalid secret' } }}",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4005",
+      "name": "Format messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst alerts = body.alerts || [];\nconst scan = body.scan;\nconst esc = (s) =>\n  String(s ?? \"\").replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\nconst ICON = { critical: \"🔴\", high: \"🟠\", medium: \"🟡\", low: \"🔵\", info: \"⚪\" };\nconst COLOR = { critical: \"#b8233a\", high: \"#b04a17\", medium: \"#8a6a00\", low: \"#1d4ed8\", info: \"#6b7280\" };\nconst n = alerts.length;\nconst highest = (body.highest || \"info\").toUpperCase();\nconst source = scan ? `scan #${scan.id} (${scan.profile}) of ${scan.target}` : \"CampusShield\";\n\n// ---- Telegram (HTML parse mode, max 10 alerts listed)\nconst head = body.test\n  ? \"🧪 <b>CampusShield test alert</b>\"\n  : `🛡️ <b>CampusShield: ${n} new alert${n === 1 ? \"\" : \"s\"}</b>`;\nconst lines = alerts\n  .slice(0, 10)\n  .map((a) => `${ICON[a.severity] || \"•\"} <b>${esc(a.severity.toUpperCase())}</b> ${esc(a.title)}`);\nif (n > 10) lines.push(`…and ${n - 10} more`);\nconst telegram = [head, `<i>${esc(source)}</i>`, \"\", ...lines, \"\", `Review: ${esc(body.alerts_url)}`]\n  .join(\"\\n\");\n\n// ---- Email (HTML)\nconst subject = body.test\n  ? \"[CampusShield] Test alert\"\n  : n === 1\n    ? `[CampusShield] ${highest}: ${alerts[0].title}`\n    : `[CampusShield] ${n} new alerts (highest: ${highest}) from ${source}`;\nconst rows = alerts\n  .map(\n    (a) => `<tr>\n  <td style=\"padding:10px 12px;border-bottom:1px solid #e5e7eb;vertical-align:top;white-space:nowrap\">\n    <span style=\"display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;color:${COLOR[a.severity] || \"#374151\"};background:#f3f4f6\">${esc(a.severity.toUpperCase())}</span>\n  </td>\n  <td style=\"padding:10px 12px;border-bottom:1px solid #e5e7eb\">\n    <div style=\"font-weight:600;color:#111827\">${esc(a.title)}</div>\n    <div style=\"color:#4b5563;font-size:13px;margin-top:2px\">${esc(a.message)}</div>\n    <div style=\"font-size:12px;margin-top:4px\"><a href=\"${esc(a.url)}\" style=\"color:#047857\">Open in CampusShield</a></div>\n  </td>\n</tr>`,\n  )\n  .join(\"\");\nconst html = `<div style=\"font-family:Segoe UI,Arial,sans-serif;max-width:680px;color:#111827\">\n  <div style=\"border-top:4px solid #059669;padding:16px 0 4px\">\n    <div style=\"font-size:18px;font-weight:700\">${body.test ? \"CampusShield test alert\" : `${n} new alert${n === 1 ? \"\" : \"s\"}`}</div>\n    <div style=\"color:#6b7280;font-size:13px\">${esc(source)}</div>\n  </div>\n  <table style=\"width:100%;border-collapse:collapse;margin-top:12px\">${rows}</table>\n  <p style=\"font-size:12px;color:#6b7280;margin-top:16px\">\n    Sent by CampusShield through n8n. Review and acknowledge alerts at\n    <a href=\"${esc(body.alerts_url)}\" style=\"color:#047857\">${esc(body.alerts_url)}</a>.\n  </p>\n</div>`;\n\nreturn [\n  {\n    json: {\n      alert_ids: alerts.map((a) => a.id).filter((id) => id > 0),\n      test: !!body.test,\n      telegram_text: telegram,\n      email_subject: subject,\n      email_html: html,\n    },\n  },\n];\n"
+      }
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4006",
+      "name": "Telegram configured?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4006c",
+              "leftValue": "={{ !!$env.TELEGRAM_BOT_TOKEN && !!$env.TELEGRAM_CHAT_ID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4007",
+      "name": "Send Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $env.TELEGRAM_CHAT_ID, text: $json.telegram_text, parse_mode: 'HTML', disable_web_page_preview: true }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4008",
+      "name": "Telegram delivered",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        -180
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CAMPUSSHIELD_API }}/api/v1/automation/delivery",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.SERVICE_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_ids: $('Format messages').item.json.alert_ids, channel: 'telegram', ok: true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4009",
+      "name": "Telegram failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        -20
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CAMPUSSHIELD_API }}/api/v1/automation/delivery",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.SERVICE_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_ids: $('Format messages').item.json.alert_ids, channel: 'telegram', ok: false, error: String($json.error?.message || $json.error?.description || $json.error || 'failed').slice(0, 500) }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4010",
+      "name": "Telegram skipped",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CAMPUSSHIELD_API }}/api/v1/automation/delivery",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.SERVICE_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_ids: $('Format messages').item.json.alert_ids, channel: 'telegram', ok: false, error: 'TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set', skipped: true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4011",
+      "name": "Send email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "fromEmail": "={{ $env.ALERT_EMAIL_FROM || 'campusshield@campus.local' }}",
+        "toEmail": "={{ $env.ALERT_EMAIL_TO || 'it-security@campus.local' }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.email_html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "csSmtpCredential",
+          "name": "CampusShield SMTP"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4012",
+      "name": "Email delivered",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CAMPUSSHIELD_API }}/api/v1/automation/delivery",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.SERVICE_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_ids: $('Format messages').item.json.alert_ids, channel: 'email', ok: true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "7b2e9f10-3c4d-4e5f-8a9b-0c1d2e3f4013",
+      "name": "Email failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        380
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CAMPUSSHIELD_API }}/api/v1/automation/delivery",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.SERVICE_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_ids: $('Format messages').item.json.alert_ids, channel: 'email', ok: false, error: String($json.error?.message || $json.error?.description || $json.error || 'failed').slice(0, 500) }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Alert webhook": {
+      "main": [
+        [
+          {
+            "node": "Secret valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Secret valid?": {
+      "main": [
+        [
+          {
+            "node": "Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accepted": {
+      "main": [
+        [
+          {
+            "node": "Format messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format messages": {
+      "main": [
+        [
+          {
+            "node": "Telegram configured?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram configured?": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram skipped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram": {
+      "main": [
+        [
+          {
+            "node": "Telegram delivered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "Email delivered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata"
+  },
+  "pinData": {}
+}

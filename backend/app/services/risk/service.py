@@ -15,8 +15,12 @@ from app.models import (
 )
 from app.services.risk import rules
 from app.services.risk.engine import AssetContext, PortEvidence, RiskResult, score_asset
+from app.services.scanner.profiles import covered_ports
 
-OBSERVATION_WINDOW = 20  # scans looked back through for version / script evidence
+# Safety bound on how many earlier observations are searched for version / script
+# evidence. The real limit is the port itself: evidence older than a scan that probed
+# the port and found it closed is never used.
+OBSERVATION_WINDOW = 500
 
 
 def seed_cve_refs(db: Session) -> int:
@@ -44,6 +48,8 @@ def gather_evidence(
     """Open ports from the latest scan that saw the asset, with versions and NSE output
     carried forward from earlier scans when the latest one did not collect them
     (a quick sweep has no version detection, but the port is still the same service).
+    Evidence is carried only while the port stayed open: the search stops at the first
+    earlier scan that probed the port and did not find it open.
 
     `current_scan_id` is the scan being finished right now: it is still "running" while
     its results are scored, so it must be included explicitly."""
@@ -55,7 +61,7 @@ def gather_evidence(
             select(ScanHost)
             .join(Scan, Scan.id == ScanHost.scan_id)
             .where(ScanHost.asset_id == asset_id, usable)
-            .options(selectinload(ScanHost.ports))
+            .options(selectinload(ScanHost.ports), selectinload(ScanHost.scan))
             .order_by(ScanHost.scan_id.desc())
             .limit(OBSERVATION_WINDOW)
         )
@@ -64,15 +70,19 @@ def gather_evidence(
         return [], None
     latest = observations[0]
     evidence = []
+    by_scan = [(obs, {(p.port, p.protocol): p for p in obs.ports}) for obs in observations]
     for port in latest.ports:
-        same_port = [
-            (obs.scan_id, p)
-            for obs in observations
-            for p in obs.ports
-            if p.port == port.port and p.protocol == port.protocol
-        ]
-        versioned = next(((sid, p) for sid, p in same_port if p.product), None)
-        scripted = next(((sid, p) for sid, p in same_port if p.script_output), None)
+        versioned = scripted = None
+        for obs, ports in by_scan:
+            seen = ports.get((port.port, port.protocol))
+            if seen is None:
+                if port.port in covered_ports(obs.scan.profile):
+                    break  # closed back then: anything older describes another service
+                continue  # that scan did not probe this port
+            versioned = versioned or (seen.product and (obs.scan_id, seen)) or None
+            scripted = scripted or (seen.script_output and (obs.scan_id, seen)) or None
+            if versioned and scripted:
+                break
         evidence.append(
             PortEvidence(
                 port=port.port,

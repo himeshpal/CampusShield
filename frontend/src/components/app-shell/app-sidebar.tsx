@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 
 import { Brand } from "@/components/brand";
+import { useAlertSummary } from "@/hooks/use-alerts";
 import {
   Sidebar,
   SidebarContent,
@@ -53,6 +54,8 @@ function ActiveNavGroups() {
 }
 
 function NavGroups({ pathname }: { pathname: string | null }) {
+  const { data: alerts } = useAlertSummary();
+  const open = alerts?.open ?? 0;
   return NAV_GROUPS.map((group) => (
     <SidebarGroup key={group.label}>
       <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
@@ -66,6 +69,14 @@ function NavGroups({ pathname }: { pathname: string | null }) {
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
+              {item.href === "/alerts" && open > 0 && (
+                <SidebarMenuBadge
+                  className="rounded-full bg-risk-critical/10 px-1.5 text-risk-critical-ink"
+                  aria-label={`${open} open alerts`}
+                >
+                  {open}
+                </SidebarMenuBadge>
+              )}
               {item.phase && (
                 <SidebarMenuBadge className="text-[10px] font-normal text-muted-foreground">
                   Soon

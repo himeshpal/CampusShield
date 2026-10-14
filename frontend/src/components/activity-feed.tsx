@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
+  Bell,
+  BellRing,
   ClipboardCheck,
   FileText,
   KeyRound,
@@ -45,6 +47,11 @@ const ICONS: Record<string, LucideIcon> = {
   "checklist.updated": ClipboardCheck,
   "report.generated": FileText,
   "report.deleted": FileText,
+  "alert.raised": BellRing,
+  "alert.acknowledged": Bell,
+  "alert.resolved": Bell,
+  "alert.test_sent": Bell,
+  "alert.delivery_failed": ShieldAlert,
 };
 
 export function ActivityFeed({ limit = 6 }: { limit?: number }) {

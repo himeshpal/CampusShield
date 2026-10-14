@@ -69,27 +69,54 @@ services:
       db:
         condition: service_healthy
 
-  # Optional until Phase 7 - only starts with: docker compose --profile automation up -d
-  # (or: .\scripts\stack.ps1 up -Automation). Saves ~300-500 MB RAM while not needed.
+  # Automation (Phase 7): only starts with  docker compose --profile automation up -d
+  # (or .\scripts\stack.ps1 up -Automation). Saves ~300-500 MB RAM when not needed.
+  # The backend posts alerts to n8n; n8n delivers them (Telegram, email) and runs
+  # scheduled scans. Workflows are re-imported from ./n8n/workflows on every start.
   n8n:
     image: n8nio/n8n:2.42.6
     profiles: [automation]
     restart: unless-stopped
+    entrypoint: ["/bin/sh", "/campusshield/start.sh"]
     environment:
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       N8N_SECURE_COOKIE: "false"
       N8N_DIAGNOSTICS_ENABLED: "false"
       N8N_PERSONALIZATION_ENABLED: "false"
+      # the workflows read their settings from these variables
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
       GENERIC_TIMEZONE: Asia/Kolkata
       TZ: Asia/Kolkata
       CAMPUSSHIELD_API: http://backend:8000
       SERVICE_API_KEY: ${SERVICE_API_KEY}
       N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-it-security@campus.local}
+      ALERT_EMAIL_FROM: ${ALERT_EMAIL_FROM:-campusshield@campus.local}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SCAN_SCHEDULE_CRON: ${SCAN_SCHEDULE_CRON:-0 7 * * *}
+      SCAN_SCHEDULE_PROFILE: ${SCAN_SCHEDULE_PROFILE:-standard}
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./n8n:/workflows
+      - ./n8n:/campusshield:ro
     ports:
       - "127.0.0.1:5678:5678"
+    networks: [app_net]
+
+  # Catches the alert emails for the demo (web inbox on :8025). Point SMTP_* in .env at a
+  # real mail server (e.g. Gmail with an app password) to send real email instead.
+  mailpit:
+    image: axllent/mailpit:v1.31.3
+    profiles: [automation]
+    restart: unless-stopped
+    mem_limit: 64m
+    ports:
+      - "127.0.0.1:8025:8025"
     networks: [app_net]
 
   # ---------------------------------------------------------------- campus lab

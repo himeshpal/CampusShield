@@ -4,8 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 // Everything the dashboard shows; scans and checklist answers can change from another
-// browser (or, from Phase 7, a scheduled n8n scan), so the overview re-reads them.
-const LIVE_KEYS = [["assets"], ["checklist"], ["scans"], ["reports"], ["audit-log"]];
+// browser or from a scheduled n8n scan, so the overview re-reads them.
+const LIVE_KEYS = [["assets"], ["checklist"], ["scans"], ["reports"], ["alerts"], ["audit-log"]];
 
 /** Keep the page live: refetch its data every `intervalMs` while the tab is visible,
  *  and immediately when the user comes back to the tab. */

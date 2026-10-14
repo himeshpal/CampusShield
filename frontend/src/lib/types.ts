@@ -54,6 +54,7 @@ export type Scan = {
   requested_by_name: string | null;
   hosts_up: number;
   open_ports: number;
+  alerts: number;
   command: string | null;
   error: string | null;
   created_at: string;
@@ -327,4 +328,52 @@ export type Report = {
   sha256: string;
   generated_by: string | null;
   created_at: string;
+};
+
+export type AlertSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type AlertStatus = "open" | "acknowledged" | "resolved";
+export type AlertKind = "new_device" | "host_missing" | "port_opened" | "port_closed" | "risk_jump" | "wazuh";
+
+export type ChannelResult = { ok: boolean; skipped?: boolean; at: string; error: string | null };
+export type AlertChannel = "telegram" | "email";
+
+export type Alert = {
+  id: number;
+  kind: AlertKind;
+  severity: AlertSeverity;
+  title: string;
+  message: string;
+  status: AlertStatus;
+  asset: { id: number; asset_tag: string; name: string | null; status: AssetStatus } | null;
+  scan_id: number | null;
+  payload: Record<string, unknown>;
+  delivery: {
+    webhook?: "sent" | "failed" | "not_configured" | "below_threshold";
+    channels?: Partial<Record<AlertChannel, ChannelResult>>;
+  };
+  delivered_at: string | null;
+  delivery_error: string | null;
+  acknowledged_by: string | null;
+  acknowledged_at: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  resolution: string | null;
+  created_at: string;
+};
+
+export type AlertSummary = {
+  open: number;
+  acknowledged: number;
+  resolved: number;
+  by_severity: Record<AlertSeverity, number>;
+  by_kind: Partial<Record<AlertKind, number>>;
+  latest_at: string | null;
+};
+
+export type NotificationSettings = {
+  min_severity: AlertSeverity;
+  webhook_configured: boolean;
+  webhook_host: string | null;
+  app_url: string;
+  channels: Partial<Record<AlertChannel, ChannelResult>>;
 };

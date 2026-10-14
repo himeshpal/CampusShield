@@ -71,6 +71,36 @@ def test_quick_scan_keeps_versions_and_scripts_from_earlier_scans(admin_client, 
     assert "identified in scan #" in cve["detail"]  # evidence source is shown
 
 
+def test_evidence_survives_any_number_of_quick_sweeps(admin_client, demo, monkeypatch):
+    """Regression (model v2 looked back 20 scans only): 25 quick sweeps after a deep scan
+    must not "forget" the CVEs and NSE findings while the ports stay open."""
+    run_scan(admin_client, monkeypatch, "lab_deep.xml", "deep")
+    before = scores(admin_client)
+    for _ in range(25):
+        run_scan(admin_client, monkeypatch, "lab_quick.xml", "quick")
+    after = scores(admin_client)
+    for tag in ("CS-0002", "CS-0007"):
+        assert after[tag]["risk_score"] == before[tag]["risk_score"], tag
+
+
+def test_evidence_is_dropped_once_the_port_was_seen_closed(admin_client, demo, monkeypatch):
+    """A version found before the port closed describes an old service: not carried."""
+    run_scan(admin_client, monkeypatch, "lab_standard.xml")  # Apache 2.4.49 on .11:80
+    without_web = (FIXTURES / "lab_quick.xml").read_text()
+    import xml.etree.ElementTree as ET
+
+    root = ET.fromstring(without_web)
+    for host in root.findall("host"):
+        if host.find("address[@addrtype='ipv4']").get("addr") == "172.25.0.11":
+            for port in host.find("ports").findall("port"):
+                host.find("ports").remove(port)
+    monkeypatch.setattr(scan_service, "nmap_runner", lambda *a: ET.tostring(root, "unicode"))
+    admin_client.post(SCANS, json={"target": "172.25.0.0/24", "profile": "quick"})
+    run_scan(admin_client, monkeypatch, "lab_quick.xml", "quick")  # port 80 open again
+    detail = admin_client.get(f"{ASSETS}/2").json()
+    assert not [i for i in detail["risk"]["components"][1]["items"] if i.get("cve_id")]
+
+
 def test_editing_criticality_or_baseline_rescores(admin_client, demo, monkeypatch):
     run_scan(admin_client, monkeypatch, "lab_standard.xml")
     before = scores(admin_client)["CS-0004"]["risk_score"]  # FTP is drift

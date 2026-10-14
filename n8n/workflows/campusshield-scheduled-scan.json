@@ -1,0 +1,48 @@
+{
+  "id": "csScheduledScans",
+  "name": "CampusShield: scheduled scan",
+  "active": true,
+  "nodes": [
+    {
+      "id": "6a1d4c3e-5b1f-4c1a-9a51-0d6f0a7e1001",
+      "name": "Every day",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "={{ $env.SCAN_SCHEDULE_CRON || '0 7 * * *' }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6a1d4c3e-5b1f-4c1a-9a51-0d6f0a7e1002",
+      "name": "Start scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CAMPUSSHIELD_API }}/api/v1/automation/scans",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "X-API-Key", "value": "={{ $env.SERVICE_API_KEY }}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ profile: $env.SCAN_SCHEDULE_PROFILE || 'standard' }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Every day": { "main": [[{ "node": "Start scan", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "Asia/Kolkata" },
+  "pinData": {}
+}

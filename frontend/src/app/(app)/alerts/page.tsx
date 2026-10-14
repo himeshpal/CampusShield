@@ -1,22 +1,17 @@
-import { Bell } from "lucide-react";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { ComingSoon } from "@/components/coming-soon";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import { AlertsView } from "./alerts-view";
 
 export const metadata: Metadata = { title: "Alerts" };
 
-export default function Page() {
+// AlertsView reads ?status= and ?focus= (links in notifications) from the URL.
+export default function AlertsPage() {
   return (
-    <ComingSoon
-      title="Alerts"
-      description="Changes detected between scans."
-      icon={Bell}
-      phase={7}
-      points={[
-        "New devices, opened or closed ports, risk-score jumps",
-        "Telegram and email delivery through n8n",
-        "Acknowledge and resolve workflow",
-      ]}
-    />
+    <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
+      <AlertsView />
+    </Suspense>
   );
 }

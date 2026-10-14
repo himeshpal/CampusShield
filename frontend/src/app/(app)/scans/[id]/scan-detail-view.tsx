@@ -20,6 +20,7 @@ import { useState } from "react";
 
 import { MatchBadge } from "@/components/assets/asset-badges";
 import { RiskBadge } from "@/components/risk/risk-badge";
+import { AlertItem } from "@/components/alerts/alert-item";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { PROFILE_LABELS, ScanStatusBadge } from "@/components/scans/scan-status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAlerts } from "@/hooks/use-alerts";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useActiveScan } from "@/hooks/use-scans";
 import { api, ApiError } from "@/lib/api";
@@ -128,6 +130,8 @@ export function ScanDetailView() {
         />
       </div>
 
+      {scan?.status === "completed" && <ScanAlerts scanId={scan.id} canAct={user?.role === "admin"} />}
+
       {scan?.command && <CommandCard command={scan.command} />}
 
       {scan?.status === "completed" && (
@@ -172,6 +176,32 @@ function Stat({ icon: Icon, label, value }: { icon: LucideIcon; label: string; v
           <p className="text-xs text-muted-foreground">{label}</p>
           <p className="text-xl font-semibold tabular-nums">{value}</p>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** What this scan changed compared with the previous one (change detection). */
+function ScanAlerts({ scanId, canAct }: { scanId: number; canAct: boolean }) {
+  const { data } = useAlerts({ scan_id: scanId, limit: 50 });
+  if (!data?.items.length) return null;
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>Changes since the previous scan</CardTitle>
+        <CardDescription>
+          {data.total} alert{data.total === 1 ? "" : "s"} raised by this scan.{" "}
+          <Link href="/alerts" className="text-primary hover:underline">
+            All alerts
+          </Link>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3">
+          {data.items.map((alert) => (
+            <AlertItem key={alert.id} alert={alert} canAct={canAct} />
+          ))}
+        </ul>
       </CardContent>
     </Card>
   );

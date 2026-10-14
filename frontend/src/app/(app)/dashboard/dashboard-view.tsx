@@ -25,6 +25,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useAlertSummary } from "@/hooks/use-alerts";
 import { useAssetSummary, useRiskSummary, useRiskTrend } from "@/hooks/use-assets";
 import { useChecklistSummary } from "@/hooks/use-checklist";
 import { useLiveRefresh } from "@/hooks/use-live-refresh";
@@ -36,7 +37,6 @@ import { cn } from "@/lib/utils";
 
 type StatKey = "assets" | "unregistered" | "critical" | "alerts";
 
-// "alerts" gets its value in the alerting phase (7).
 const STATS: {
   key: StatKey;
   label: string;
@@ -62,7 +62,14 @@ const STATS: {
     tone: "text-risk-critical-ink",
     href: "/assets",
   },
-  { key: "alerts", label: "Open alerts", icon: Bell, hint: "Changes waiting for review" },
+  {
+    key: "alerts",
+    label: "Open alerts",
+    icon: Bell,
+    hint: "Changes waiting for review",
+    tone: "text-risk-high-ink",
+    href: "/alerts",
+  },
 ];
 
 type StepKey = "accounts" | "scan" | "inventory" | "checklist" | "report";
@@ -121,6 +128,7 @@ export function DashboardView() {
   const { data: risk } = useRiskSummary();
   const { data: checklist } = useChecklistSummary();
   const { data: trend } = useRiskTrend();
+  const { data: alerts } = useAlertSummary();
   const { data: reports } = useReports();
   const lastScan = scans?.find((s) => s.status === "completed");
   const lastReport = reports?.[0];
@@ -128,7 +136,7 @@ export function DashboardView() {
     assets: inventory?.registered,
     unregistered: inventory?.unregistered,
     critical: risk?.bands.critical,
-    alerts: undefined,
+    alerts: alerts?.open,
   };
   const done: Record<StepKey, boolean> = {
     accounts: true,
@@ -178,13 +186,13 @@ export function DashboardView() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {STATS.map(({ key, label, icon: Icon, hint, tone, href }) => {
           const value = values[key];
-          const alarming = (key === "unregistered" || key === "critical") && !!value;
+          const alarming = (key === "unregistered" || key === "critical" || key === "alerts") && !!value;
           const card = (
             <Card
               className={cn(
                 "h-full gap-3 transition-colors",
                 href && "hover:border-primary/40",
-                alarming && key === "unregistered" && "border-risk-high/40 bg-risk-high/5",
+                alarming && key !== "critical" && "border-risk-high/40 bg-risk-high/5",
                 alarming && key === "critical" && "border-risk-critical/40 bg-risk-critical/5",
               )}
             >

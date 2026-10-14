@@ -17,8 +17,10 @@ from app.models import Scan, ScanHost, ScanPort, User
 from app.models.base import utcnow
 from app.models.scan import ACTIVE_STATUSES
 from app.services import audit
+from app.services.alerts.detect import detect_changes
+from app.services.alerts.notify import notify
 from app.services.matching import match_scan
-from app.services.risk.service import score_scan
+from app.services.risk.service import latest_scores, score_scan
 from app.services.scanner.parser import ParsedScan, parse_nmap_xml
 from app.services.scanner.profiles import PROFILES, display_command
 from app.services.scanner.runner import ScanCancelled, run_nmap
@@ -123,9 +125,14 @@ def execute_scan(scan_id: int) -> None:
             result = parse_nmap_xml(xml)
             _store_results(db, scan, result)
             db.flush()
-            match_scan(db, scan)  # link hosts to assets, flag unregistered devices
+            matched = match_scan(db, scan)  # link hosts to assets, flag unregistered devices
+            before = latest_scores(db, [h.asset_id for h in scan.hosts if h.asset_id])
             score_scan(db, scan)  # rescore every asset this scan observed
+            changes = detect_changes(db, scan, matched, before)  # diff against earlier scans
+            _record_changes(db, scan, changes.created, len(changes.resolved))
             _finish(db, scan, "completed", phase="Completed")
+            if changes.created:  # after the scan shows as completed: n8n may be slow
+                _notify(db, scan, changes.created)
         except ScanCancelled:
             _finish(db, scan, "cancelled", phase="Cancelled")
         except Exception as exc:  # recorded on the scan for the UI
@@ -169,6 +176,28 @@ def _store_results(db: Session, scan: Scan, result: ParsedScan) -> None:
         "open_ports": result.open_ports,
         "nmap_elapsed_seconds": result.elapsed_seconds,
     }
+
+
+def _notify(db: Session, scan: Scan, alerts: list) -> None:
+    """Delivery problems are recorded on the alerts and must never fail the scan."""
+    try:
+        notify(db, alerts, scan)
+        db.commit()
+    except Exception:
+        log.exception("could not notify alerts of scan %s", scan.id)
+        db.rollback()
+
+
+def _record_changes(db: Session, scan: Scan, created: list, resolved: int) -> None:
+    scan.summary = {**scan.summary, "alerts": len(created), "alerts_resolved": resolved}
+    if created:
+        kinds: dict[str, int] = {}
+        for alert in created:
+            kinds[alert.kind] = kinds.get(alert.kind, 0) + 1
+        audit.record(
+            db, "alert.raised", actor="system", entity_type="scan", entity_id=scan.id,
+            details={"count": len(created), "kinds": kinds},
+        )  # fmt: skip
 
 
 def _finish(db: Session, scan: Scan, status: str, *, phase: str) -> None:

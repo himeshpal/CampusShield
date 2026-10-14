@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -30,6 +31,7 @@ export function useScanHistory(limit = 20) {
  */
 export function useActiveScan() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const query = useQuery({
     queryKey: ["scans", "active"],
     queryFn: () => api<Scan | null>("/scans/active"),
@@ -46,10 +48,14 @@ export function useActiveScan() {
       queryClient.invalidateQueries({ queryKey: ["scans", "detail", before.id] });
       queryClient.invalidateQueries({ queryKey: ["audit-log"] });
       queryClient.invalidateQueries({ queryKey: ["assets"] }); // matching updated the inventory
+      queryClient.invalidateQueries({ queryKey: ["alerts"] }); // change detection ran
       api<Scan>(`/scans/${before.id}`).then((scan) => {
         if (scan.status === "completed") {
           toast.success(`Scan #${scan.id} completed`, {
-            description: `${scan.hosts_up} hosts up, ${scan.open_ports} open ports`,
+            description: `${scan.hosts_up} hosts up, ${scan.open_ports} open ports${
+              scan.alerts ? ` · ${scan.alerts} new alert${scan.alerts === 1 ? "" : "s"}` : ""
+            }`,
+            action: scan.alerts ? { label: "Review", onClick: () => router.push("/alerts") } : undefined,
           });
         } else if (scan.status === "failed") {
           toast.error(`Scan #${scan.id} failed`, { description: scan.error ?? undefined });
@@ -58,7 +64,7 @@ export function useActiveScan() {
         }
       });
     }
-  }, [query.data, queryClient]);
+  }, [query.data, queryClient, router]);
 
   return query;
 }

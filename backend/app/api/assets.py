@@ -20,6 +20,7 @@ from app.schemas.asset import (
 )
 from app.schemas.risk import RiskPoint
 from app.services import audit
+from app.services.alerts.detect import resolve_for_asset
 from app.services.matching import next_asset_tag
 from app.services.risk.service import latest_scores, rescore
 
@@ -224,6 +225,11 @@ def update_asset(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Give the asset a name to register it")
     for field, value in changes.items():
         setattr(asset, field, value)
+    if changes.get("status") == "retired":  # nothing left to watch on a retired asset
+        resolve_for_asset(db, asset, ("new_device", "host_missing", "port_opened", "risk_jump"),
+                          f"Asset retired by {admin.full_name}")  # fmt: skip
+    elif changes.get("status") == "registered":
+        resolve_for_asset(db, asset, ("new_device",), f"Registered by {admin.full_name}")
     action = {"retired": "asset.retired", "registered": "asset.registered"}.get(
         changes.get("status", ""), "asset.updated"
     )
@@ -251,6 +257,7 @@ def register_asset(
     for field, value in body.model_dump().items():
         setattr(asset, field, value)
     asset.status = "registered"
+    resolve_for_asset(db, asset, ("new_device",), f"Registered by {admin.full_name}")
     # observations from earlier scans now belong to a registered asset
     for host in db.scalars(select(ScanHost).where(ScanHost.asset_id == asset.id)):
         host.is_registered = True

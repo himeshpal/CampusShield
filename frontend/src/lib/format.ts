@@ -57,6 +57,12 @@ const ACTIONS: Record<string, string> = {
   "checklist.updated": "Updated the security checklist",
   "report.generated": "Generated an audit report",
   "report.deleted": "Deleted an audit report",
+  "alert.raised": "Changes detected by a scan",
+  "alert.acknowledged": "Acknowledged an alert",
+  "alert.resolved": "Resolved an alert",
+  "alert.test_sent": "Sent a test alert",
+  "alert.delivery_failed": "Alert delivery failed",
+  "settings.updated": "Changed a setting",
 };
 
 /** "226 KB" style file size. */

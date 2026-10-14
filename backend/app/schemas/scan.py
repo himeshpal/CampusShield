@@ -39,6 +39,7 @@ class ScanOut(BaseModel):
     requested_by_name: str | None = None
     hosts_up: int
     open_ports: int = 0
+    alerts: int = 0  # raised by this scan (change detection)
     command: str | None = None
     error: str | None
     created_at: datetime

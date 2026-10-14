@@ -5,6 +5,7 @@ quick ~2 s, standard ~15 s, deep ~2 min.
 """
 
 from dataclasses import dataclass
+from functools import cache
 
 # nmap's "top 1000" misses ports that matter on a campus (Redis 6379, RTSP 8554,
 # camera DVR 37777, ...), so the profiles use explicit port lists instead.
@@ -73,6 +74,18 @@ PROFILES: dict[str, ScanProfile] = {
         ),
     )
 }
+
+
+@cache
+def covered_ports(profile: str) -> frozenset[int]:
+    """The TCP ports a scan profile probes (parsed from its nmap -p argument)."""
+    args = PROFILES[profile].args
+    spec = args[args.index("-p") + 1]
+    ports: set[int] = set()
+    for part in spec.split(","):
+        low, _, high = part.partition("-")
+        ports.update(range(int(low), int(high or low) + 1))
+    return frozenset(ports)
 
 
 def build_command(

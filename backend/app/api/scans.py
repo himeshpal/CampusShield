@@ -18,6 +18,7 @@ def _out(scan: Scan, model: type[ScanOut] = ScanOut) -> ScanOut:
     data = model.model_validate(scan, from_attributes=True)
     data.requested_by_name = scan.requested_by.full_name if scan.requested_by else None
     data.open_ports = scan.summary.get("open_ports", 0)
+    data.alerts = scan.summary.get("alerts", 0)
     data.command = scan.summary.get("command")
     if isinstance(data, ScanDetail):
         data.matched = scan.summary.get("matched", 0)

@@ -23,7 +23,7 @@ Prerequisites: Docker Desktop (WSL2), Node.js 20+.
 ```powershell
 copy .env.example .env          # first time only, then change the secrets
 .\scripts\stack.ps1 up          # Docker + db + backend + lab
-.\scripts\stack.ps1 up -Automation   # ...plus n8n (alerts / scheduled scans, Phase 7+)
+.\scripts\stack.ps1 up -Automation   # ...plus n8n + Mailpit (alert delivery, scheduled scans)
 cd frontend; npm install; npm run dev
 ```
 
@@ -31,7 +31,8 @@ cd frontend; npm install; npm run dev
 |---|---|
 | http://localhost:3000 | CampusShield UI |
 | http://127.0.0.1:8000/docs | API (Swagger) |
-| http://127.0.0.1:5678 | n8n (only with `-Automation`) |
+| http://127.0.0.1:5678 | n8n (only with `-Automation`; first visit asks you to create an n8n owner account) |
+| http://127.0.0.1:8025 | Mailpit: the demo inbox that receives alert e-mails (only with `-Automation`) |
 
 When you are done: `.\scripts\stack.ps1 down` (stops containers, shuts Docker/WSL to free RAM; data is kept).
 
@@ -93,8 +94,9 @@ Medium 25-49, High 50-74, Critical ≥75. Every stored score keeps a full breakd
 as "Why this score" on each asset. The whole model, including the 14-entry CVE
 reference list (CVSS verified against NIST NVD), is defined in
 `backend/app/services/risk/rules.py` and published in Settings → Risk model. Versions
-and NSE findings are carried forward from earlier scans while a port stays open, so a
-quick sweep does not "forget" a known CVE.
+and NSE findings are carried forward from earlier scans while a port stays open (the search stops at the
+first scan that probed the port and found it closed), so any number of quick sweeps
+does not "forget" a known CVE.
 
 ## Security checklist
 
@@ -127,6 +129,50 @@ can be compared over time. Contents:
 
 The cover shows `INSTITUTION_NAME` from `.env`; times are printed in `REPORT_TIMEZONE`
 (default Asia/Kolkata). Templates: `backend/app/services/report/templates/`.
+
+## Change alerts and n8n
+
+Every completed scan is compared with what was known before it
+(`backend/app/services/alerts/detect.py`). Each alert is a *difference*, so a condition is
+reported once, and it resolves itself when the condition clears:
+
+| Alert | Raised when | Severity | Resolves itself when |
+|---|---|---|---|
+| New device | an unknown device answers (or a different MAC answers on a registered IP) | high (critical for an IP conflict) | the device is registered or retired |
+| Port opened | a port is open that the previous scan probed and found closed | by service weight (Telnet high, Redis medium, ...); info for a baseline port | the port is closed again |
+| Port closed | a port the previous scan saw open is closed, and this scan probed it | info | (informational) |
+| Not responding | a registered device seen by the last scan of its address is missing | medium (high at criticality 10+/12) | the device answers again |
+| Risk rose | a score rises 10+ points or into a higher band | the new band | the score falls back |
+
+Port changes are only claimed where *both* scans probed the port (a quick sweep covers ~35
+ports, a standard audit 1-1024 plus campus services), so mixing profiles gives no false
+alarms. Admins acknowledge or resolve alerts (with a note); everything is audit-logged.
+
+**Delivery.** Alerts at or above a threshold (Settings → Notifications, default medium) are
+POSTed to an n8n webhook with a shared-secret header. The n8n workflow
+(`n8n/workflows/campusshield-alerts.json`) checks the secret, formats the message, sends it
+by **email** and **Telegram**, and reports each channel's result back to the backend
+(`POST /api/v1/automation/delivery`, service API key), which shows it on every alert.
+A second workflow runs a **scheduled scan** (daily 07:00 by default) through
+`POST /api/v1/automation/scans`. Both workflows and the SMTP credential are loaded from
+the repository every time n8n starts (`n8n/start.sh`).
+
+- **Email:** goes to the bundled Mailpit inbox (http://127.0.0.1:8025) unless `SMTP_*` in
+  `.env` points at a real server (e.g. Gmail: `smtp.gmail.com`, port 465, secure, app password).
+- **Telegram:** create a bot with @BotFather, send it a message, read your chat id from
+  `https://api.telegram.org/bot<token>/getUpdates`, then set `TELEGRAM_BOT_TOKEN` and
+  `TELEGRAM_CHAT_ID` in `.env` and restart n8n (`docker compose --profile automation up -d n8n`).
+- **Test the whole path:** Settings → Notifications → *Send test alert*.
+
+**Demo script** (needs the stack with `-Automation`):
+
+```powershell
+.\scripts\demo.ps1 open-port    # Telnet on the lab PC -> "port opened" + "risk rose"
+.\scripts\demo.ps1 scan         # scan the way n8n does (-Profile quick|standard|deep)
+.\scripts\demo.ps1 close-port   # next scan resolves both alerts
+.\scripts\demo.ps1 unplug       # Wi-Fi AP off -> "did not respond"; plug brings it back
+.\scripts\demo.ps1 reset        # undo every change
+```
 
 ## Tests
 

@@ -7,7 +7,9 @@ score = min(100, (exposure + vulnerabilities + drift + controls + inventory) * m
 
 # v2: the controls cap grows with the number of controls (v1 capped at 20, so with six
 #     controls the first one confirmed changed nothing)
-MODEL_VERSION = 2
+# v3: versions / NSE findings are carried forward while the port stays open (v2 looked
+#     back only 20 scans, so a run of quick sweeps "forgot" CVEs found by a deep scan)
+MODEL_VERSION = 3
 
 # component caps (points)
 EXPOSURE_CAP = 40

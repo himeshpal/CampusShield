@@ -159,3 +159,45 @@ A full report of the lab (7 devices) is 17 A4 pages / ~285 KB and renders in ~2.
 | D-16 | PDF running header (report title) and footer (report number) were empty | WeasyPrint only takes `string-set` from rendered elements; the source spans were `display: none` | Strings taken from the visible cover title and report number |
 | D-17 | Next.js "blocking prerender" error on /reports | Date-based title placeholder computed while prerendering | Placeholder computed only while the dialog is open |
 
+
+---
+
+# Addendum: Phase 7 (change alerts and n8n)
+
+**Results:** backend **230 / 230** (incl. live lab), E2E **41 / 41** (the alert test drives
+the real lab: Telnet switched on, scan, acknowledge, Telnet off, scan, auto-resolved),
+0 hydration errors after fix D-19, Alerts page has no overflow at 390 px.
+
+**Live pipeline check (lab):** Telnet opened on the lab PC → standard scan #30 raised
+"port opened" (high) and "risk rose 44.8 → 60.8, Medium to High"; n8n delivered one email
+to Mailpit and reported Telegram as not set up; both results were stored on the alerts.
+Telnet closed + Wi-Fi AP stopped → quick scan #31 resolved the port alert and raised
+"Wi-Fi AP Block A did not respond"; AP back → scan #32 resolved it and the risk alert.
+A scheduled scan triggered by n8n (scan #29, shown as "n8n") raised no false alarms after
+a standard audit.
+
+| ID | Check | Result |
+|---|---|---|
+| TC-44 | First scan: only the rogue device is reported (registered devices have no earlier scan to differ from) | Pass |
+| TC-45 | Identical rescan raises nothing; each condition is reported once | Pass |
+| TC-46 | Port opened → closed: alert resolves itself, no duplicate "closed" alert | Pass |
+| TC-47 | Quick ↔ standard mixes: no opened/closed claims for ports one scan did not probe | Pass |
+| TC-48 | Missing host reported once, resolves when it answers; a single-IP scan reports nothing missing | Pass |
+| TC-49 | Different MAC on a registered IP: critical, names the registered asset | Pass |
+| TC-50 | Risk rise names the components that grew and resolves when the score falls back | Pass |
+| TC-51 | Below-threshold alerts kept but not pushed; n8n missing or crashing never fails a scan | Pass |
+| TC-52 | Service-key endpoints: 401 without or with a wrong key; scheduled scan recorded as n8n | Pass |
+| TC-53 | n8n webhook rejects a request without the shared secret (401) | Pass (live) |
+| TC-54 | Auditor reads alerts but cannot acknowledge, resolve or change settings (403) | Pass |
+
+## Defects found and fixed during Phase 7
+
+| ID | Defect | Root cause | Fix |
+|---|---|---|---|
+| D-18 | After 25+ quick sweeps the rogue device dropped from 84 to 67; CVE matches could be lost the same way | Model v2 searched only the last 20 observations for version / NSE evidence | Model v3: evidence carried while the port stays open (stops at the first scan that probed it and found it closed), safety bound 500; regression tests for both directions |
+| D-19 | Hydration error on /alerts and /dashboard | Sidebar badge and page share the alert-summary query; the sidebar's fetch could finish before the page hydrated | Summary data withheld until hydration (`useHydrated`) |
+| D-20 | n8n restart loop on first start | `import:workflow --activeState` is not allowed in single-instance n8n 2.x | Import, then `publish:workflow` for each workflow |
+
+**Environment note:** Docker Desktop stopped once during this phase with "WSL update
+required" while Windows updated WSL to 3.0.3 in the background; `stack.ps1 down` / `up`
+was enough to recover.
