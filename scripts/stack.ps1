@@ -14,7 +14,10 @@ param(
 # a fatal error. Failures are checked through $LASTEXITCODE instead.
 $ErrorActionPreference = "Continue"
 $root = Split-Path $PSScriptRoot -Parent
-$env:Path = "D:\Docker\Program\resources\bin;$env:Path"
+# Docker Desktop: the default install location, or a custom one (e.g. D:\Docker\Program)
+$dockerHome = @("$env:ProgramFiles\Docker\Docker", "D:\Docker\Program") |
+    Where-Object { Test-Path (Join-Path $_ "Docker Desktop.exe") } | Select-Object -First 1
+if ($dockerHome) { $env:Path = "$dockerHome\resources\bin;$env:Path" }
 
 function Test-Docker {
     cmd /c "docker info >nul 2>&1"
@@ -35,7 +38,8 @@ try {
         "up" {
             if (-not (Test-Docker)) {
                 Write-Host "Starting Docker Desktop..."
-                Start-Process "D:\Docker\Program\Docker Desktop.exe"
+                if (-not $dockerHome) { throw "Docker Desktop not found: install it or start it manually" }
+                Start-Process (Join-Path $dockerHome "Docker Desktop.exe")
                 Wait-Docker
             }
             $profiles = @()

@@ -17,7 +17,10 @@ param(
 
 $ErrorActionPreference = "Continue"  # docker writes progress to stderr
 $root = Split-Path $PSScriptRoot -Parent
-$env:Path = "D:\Docker\Program\resources\bin;$env:Path"
+# Docker Desktop: the default install location, or a custom one (e.g. D:\Docker\Program)
+$dockerHome = @("$env:ProgramFiles\Docker\Docker", "D:\Docker\Program") |
+    Where-Object { Test-Path (Join-Path $_ "Docker Desktop.exe") } | Select-Object -First 1
+if ($dockerHome) { $env:Path = "$dockerHome\resources\bin;$env:Path" }
 
 function Get-EnvValue([string]$name) {
     $line = Get-Content (Join-Path $root ".env") | Where-Object { $_ -match "^$name=" } | Select-Object -First 1

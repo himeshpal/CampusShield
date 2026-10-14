@@ -29,10 +29,11 @@ export async function ensureCompletedScan(page: Page) {
 
 /** Run a shell command inside a lab container (needs the Docker CLI). */
 export function labExec(service: string, command: string) {
-  const dockerBin = "D:\Docker\Program\resources\bin";
+  // Docker Desktop's CLI folder (default install, or a custom one) in case it is not on PATH
+  const dockerBins = ["C:\\Program Files\\Docker\\Docker\\resources\\bin", "D:\\Docker\\Program\\resources\\bin"];
   execSync(`docker compose exec -T ${service} sh -c "${command}"`, {
     cwd: path.resolve(__dirname, "../.."),
-    env: { ...process.env, PATH: `${dockerBin}${path.delimiter}${process.env.PATH}` },
+    env: { ...process.env, PATH: [...dockerBins, process.env.PATH].join(path.delimiter) },
     stdio: "ignore",
   });
 }
