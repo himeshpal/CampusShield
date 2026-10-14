@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ r.title }}</title>
+  <meta name="author" content="{{ r.generated_by }}">
+  <meta name="description" content="{{ r.number }} · CampusShield security audit report for {{ r.institution }}">
+  <meta name="generator" content="CampusShield">
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+{% macro chip(band) %}<span class="chip {{ band or 'none' }}">{{ band | band }}</span>{% endmacro %}
+{% macro severity(level) %}<span class="chip {{ level if level in band_order else 'info' }}">{{ level | capitalize }}</span>{% endmacro %}
+{% set sections = [
+  ("summary", "Executive summary"),
+  ("actions", "Priority recommendations"),
+  ("register", "Asset risk register"),
+  ("vulns", "Vulnerabilities and misconfigurations"),
+  ("unregistered", "Unregistered devices"),
+  ("checklist", "Security checklist"),
+] + ([("details", "Asset details")] if r.include_details else []) + [
+  ("method", "Scope and methodology"),
+] %}
+{% set num = {} %}
+{% for key, _ in sections %}{% set _ = num.update({key: loop.index}) %}{% endfor %}
+
+{# ============================================================ cover #}
+<div class="cover">
+  <div class="cover-band"></div>
+  <div class="cover-body">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      <div>Campus<span>Shield</span></div>
+    </div>
+
+    <div class="eyebrow">Security audit report</div>
+    <h1 class="doc-title">{{ r.title }}</h1>
+    <div class="institution">{{ r.institution }}</div>
+
+    <table class="cover-meta">
+      <tr><td>Report number</td><td><b class="doc-number">{{ r.number }}</b></td></tr>
+      <tr><td>Generated</td><td>{{ r.generated_at | local }}</td></tr>
+      <tr><td>Prepared by</td><td>{{ r.generated_by }}</td></tr>
+      <tr><td>Scope</td><td>{{ r.scope | join(", ") }}</td></tr>
+      <tr><td>Data as of</td><td>
+        {% if r.latest_scan %}Scan #{{ r.latest_scan.id }} ({{ r.latest_scan.profile | profile }}), {{ r.latest_scan.finished_at | local }}
+        {% else %}No completed network scan{% endif %}
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="cover-posture">
+    <div class="posture-score">
+      <div class="muted small">Average risk score</div>
+      <div class="value">{{ r.average | score }}<small> / 100</small></div>
+      <div style="margin-top: 2mm">{{ chip(r.average_band) }}</div>
+    </div>
+    <div class="posture-stats">
+      <div><b>{{ r.assessed | length }}</b><span>devices assessed</span></div>
+      <div><b>{{ r.high_or_critical }}</b><span>high or critical risk</span></div>
+      <div><b>{{ r.vulnerabilities | length }}</b><span>vulnerabilities found</span></div>
+      <div><b>{{ r.unregistered | length }}</b><span>unregistered devices</span></div>
+    </div>
+  </div>
+  <div class="confidential">
+    Confidential: this report describes security weaknesses in the campus network. Share it only
+    with staff authorised to act on it.
+  </div>
+</div>
+
+{# ============================================================ contents #}
+<section>
+  <h2 style="bookmark-level: none">Contents</h2>
+  <ul class="toc">
+    {% for key, title in sections %}
+    <li><a href="#{{ key }}"><span class="num">{{ loop.index }}</span>{{ title }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="note">
+    <b>How to read this report.</b> Every device gets a risk score from 0 to 100, computed by a
+    documented rule set from what the network scan found (exposed services, known vulnerabilities,
+    unexpected ports), the manual security checklist and whether the device is registered. The
+    total is weighted by how critical the device is to the campus. Bands: Low below 25, Medium 25-49,
+    High 50-74, Critical 75 and above. Section {{ num.method }} lists every rule.
+  </div>
+  <p class="muted small">
+    This is a point-in-time snapshot taken {{ r.generated_at | local }}. Later scans and checklist
+    updates are not reflected; generate a new report from CampusShield for the current state.
+  </p>
+</section>
+
+{# ============================================================ 1 summary #}
+<section class="chapter" id="summary">
+  <h2><span class="num">{{ num.summary }}</span>Executive summary</h2>
+
+  <div class="kpis">
+    <div class="kpi"><b>{{ r.counts.registered }}</b><span>registered assets</span></div>
+    <div class="kpi"><b>{{ r.average | score }}</b><span>average risk score</span></div>
+    <div class="kpi {{ 'alarm' if r.bands.critical }}"><b>{{ r.bands.critical }}</b><span>critical-risk devices</span></div>
+    <div class="kpi {{ 'alarm' if r.unregistered }}"><b>{{ r.unregistered | length }}</b><span>unregistered devices</span></div>
+    <div class="kpi"><b>{{ r.vulnerabilities | length }}</b><span>vulnerabilities</span></div>
+    <div class="kpi">
+      <b>{% if r.checklist_total %}{{ (100 * r.checklist_answered / r.checklist_total) | round | int }}%{% else %}—{% endif %}</b>
+      <span>checklist complete</span>
+    </div>
+  </div>
+
+  <h3>Key findings</h3>
+  <ul class="findings">
+    {% for line in r.narrative() %}<li>{{ line }}</li>{% endfor %}
+  </ul>
+
+  <div class="two-col">
+    <div class="panel">
+      <h4>Devices by risk band</h4>
+      {% set total = r.assessed | length %}
+      <div class="stack">
+        {% if total == 0 %}<div class="empty"></div>{% endif %}
+        {% for b in band_order | reverse if r.bands[b] %}
+        <div class="bg-{{ b }}" style="width: {{ 100 * r.bands[b] / total }}%"></div>
+        {% endfor %}
+      </div>
+      <div class="legend">
+        {% for b in band_order | reverse %}
+        <span><i class="swatch bg-{{ b }}"></i>{{ b | band }} <b>{{ r.bands[b] }}</b></span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="panel">
+      <h4>What drives the risk</h4>
+      {% if r.drivers %}
+      <table class="bars">
+        {% for d in r.drivers %}
+        <tr>
+          <td>{{ d.label }}</td>
+          <td><div class="track"><div class="fill" style="width: {{ 100 * d.share }}%"></div></div></td>
+          <td>{{ d.share | pct }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p class="muted small" style="margin-top: 2mm">Share of all risk points across assessed devices, before criticality weighting.</p>
+      {% else %}<p class="muted">No risk points recorded.</p>{% endif %}
+    </div>
+  </div>
+
+  {% if r.trend | length > 1 %}
+  <div class="panel">
+    <h4>Campus average risk over time</h4>
+    {{ trend_chart(r.trend) }}
+    <p class="muted small" style="margin-top: 1mm">
+      One point per scoring event (scan, checklist update) from {{ r.trend[0].at | local("%d %b %Y") }}.
+      Hairlines mark the band thresholds at 25, 50 and 75.
+    </p>
+  </div>
+  {% endif %}
+</section>
+
+{# ============================================================ 2 recommendations #}
+<section class="chapter" id="actions">
+  <h2><span class="num">{{ num.actions }}</span>Priority recommendations</h2>
+  <p class="lead">
+    Actions derived from the findings, the same action on several devices merged into one line.
+    Ordered by priority, then by the risk points the action addresses (after criticality weighting).
+  </p>
+  {% if r.recommendations %}
+  <table class="data">
+    <thead><tr><th style="width: 6mm">#</th><th style="width: 19mm">Priority</th><th>Action</th><th style="width: 52mm">Devices</th><th class="right" style="width: 13mm">Points</th></tr></thead>
+    <tbody>
+      {% for rec in r.recommendations %}
+      <tr>
+        <td class="rank">{{ loop.index }}</td>
+        <td>{{ severity(rec.priority) }}</td>
+        <td><b>{{ rec.action }}</b><span class="sub">{{ rec.reason }}</span></td>
+        <td><ul class="asset-list">{% for a in rec.assets %}<li>{{ a }}</li>{% endfor %}</ul></td>
+        <td class="num">{{ rec.points | score }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No actions: no finding carries risk points.</div>
+  {% endif %}
+</section>
+
+{# ============================================================ 3 register #}
+<section class="chapter" id="register">
+  <h2><span class="num">{{ num.register }}</span>Asset risk register</h2>
+  <p class="lead">
+    {{ plural(r.assets | length, "device") }} in the inventory ({{ r.counts.registered }} registered,
+    {{ r.counts.unregistered }} unregistered{% if r.counts.retired %}; {{ r.counts.retired }} retired devices are excluded{% endif %}), riskiest first.
+  </p>
+  <table class="data">
+    <thead><tr><th>Device</th><th>Address</th><th>Status</th><th class="right">Criticality</th><th class="right">Score</th><th>Band</th><th>Main driver</th></tr></thead>
+    <tbody>
+      {% for a in r.assets %}
+      <tr>
+        <td><b>{{ a.display_name }}</b><span class="sub">{{ a.tag }} · {{ a.type_label }}</span></td>
+        <td class="mono nowrap">{{ a.ip or "—" }}</td>
+        <td>{% if a.status == "unregistered" %}<span class="tag warn">Unregistered</span>{% else %}<span class="tag">Registered</span>{% endif %}</td>
+        <td class="num">{{ a.criticality }}/12</td>
+        <td class="num"><b>{{ a.score | score }}</b></td>
+        <td>{{ chip(a.band) }}</td>
+        <td>{{ a.top_driver or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted small">
+    Criticality is the sum of four ratings from 1 to 3 (data sensitivity, service dependency, users
+    affected, replaceability) and sets the score multiplier from 0.8x (4/12) to 1.5x (12/12).
+  </p>
+</section>
+
+{# ============================================================ 4 vulnerabilities #}
+<section class="chapter" id="vulns">
+  <h2><span class="num">{{ num.vulns }}</span>Vulnerabilities and misconfigurations</h2>
+  <p class="lead">
+    Known CVEs matched on product and version, end-of-life software, and misconfigurations confirmed
+    by safe Nmap scripts. Versions come from service banners and should be confirmed on the host.
+  </p>
+  {% if r.vulnerabilities %}
+  <table class="data">
+    <thead><tr><th>Finding</th><th>Device</th><th class="right">Port</th><th>Severity</th><th class="right">Points</th></tr></thead>
+    <tbody>
+      {% for v in r.vulnerabilities %}
+      <tr>
+        <td><b>{{ v.title }}</b>{% if v.detail %}<span class="sub">{{ v.detail }}</span>{% endif %}</td>
+        <td>{{ v.asset.display_name }}<span class="sub">{{ v.asset.tag }} · {{ v.asset.ip or "—" }}</span></td>
+        <td class="num">{{ v.port or "—" }}</td>
+        <td>{{ severity(v.severity) }}</td>
+        <td class="num">{{ v.points }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No known vulnerability or misconfiguration was found.</div>
+  {% endif %}
+</section>
+
+{# ============================================================ 5 unregistered #}
+<section class="chapter" id="unregistered">
+  <h2><span class="num">{{ num.unregistered }}</span>Unregistered devices</h2>
+  <p class="lead">
+    Devices that answered on the network but are not in the asset inventory. Each must be identified
+    and either registered with an owner or removed.
+  </p>
+  {% if r.unregistered %}
+  <table class="data">
+    <thead><tr><th>Device</th><th>Address</th><th>Vendor (from MAC)</th><th>Open services</th><th class="right">Score</th><th>Last seen</th></tr></thead>
+    <tbody>
+      {% for a in r.unregistered %}
+      <tr>
+        <td><b>{{ a.tag }}</b><span class="sub">{{ a.type_label }}</span></td>
+        <td class="mono">{{ a.ip or "—" }}<span class="sub">{{ a.mac or "" }}</span></td>
+        <td>{{ a.vendor or "Unknown" }}</td>
+        <td>{% for p in a.ports %}<div class="nowrap">{{ p.port }}/{{ p.protocol }} {{ p.service or "" }}{% if p.software %} <span class="muted">({{ p.software }})</span>{% endif %}</div>{% else %}<span class="muted">none</span>{% endfor %}</td>
+        <td class="num"><b>{{ a.score | score }}</b><br>{{ chip(a.band) }}</td>
+        <td class="nowrap">{{ a.last_seen | local("%d %b %Y") }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">Every device seen on the network is registered in the inventory.</div>
+  {% endif %}
+</section>
+
+{# ============================================================ 6 checklist #}
+<section class="chapter" id="checklist">
+  <h2><span class="num">{{ num.checklist }}</span>Security checklist</h2>
+  <p class="lead">
+    Controls a network scan cannot verify, recorded per registered device. Missing and unconfirmed
+    controls both add to the risk score.
+    {% if r.checklist_total %}{{ r.checklist_answered }} of {{ r.checklist_total }} answers recorded.{% endif %}
+  </p>
+  <table class="data">
+    <thead><tr><th>Control</th><th class="right">In place</th><th class="right">Missing</th><th class="right">N/A</th><th class="right">Not confirmed</th><th style="width: 34mm">Coverage</th></tr></thead>
+    <tbody>
+      {% for c in r.controls %}
+      {% set n = c.counts.values() | sum %}
+      <tr>
+        <td><b>{{ c.label }}</b></td>
+        <td class="num">{{ c.counts.yes }}</td>
+        <td class="num">{{ c.counts.no }}</td>
+        <td class="num">{{ c.counts.na }}</td>
+        <td class="num">{{ c.counts.unknown }}</td>
+        <td>
+          <div class="coverage">
+            {% for s in ["yes", "no", "na", "unknown"] if n and c.counts[s] %}
+            <div class="cov-{{ s }}" style="width: {{ 100 * c.counts[s] / n }}%"></div>
+            {% endfor %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="legend small" style="margin-bottom: 5mm">
+    <span><i class="swatch cov-yes"></i>In place</span>
+    <span><i class="swatch cov-no"></i>Missing</span>
+    <span><i class="swatch cov-na"></i>Not applicable</span>
+    <span><i class="swatch cov-unknown"></i>Not confirmed</span>
+  </div>
+
+  <h3>Recorded gaps</h3>
+  {% if r.control_gaps %}
+  <table class="data">
+    <thead><tr><th>Device</th><th>Missing control</th></tr></thead>
+    <tbody>
+      {% for a, control in r.control_gaps %}
+      <tr><td>{{ a.label }}</td><td>{{ control }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No control is recorded as missing.</p>
+  {% endif %}
+</section>
+
+{# ============================================================ 7 details #}
+{% if r.include_details %}
+<section class="chapter" id="details">
+  <h2><span class="num">{{ num.details }}</span>Asset details</h2>
+  <p class="lead">Each device with the evidence behind its score.</p>
+  {% for a in r.assets %}
+  <div class="asset">
+    <div class="asset-head">
+      <div>
+        <h3>{{ a.display_name }}</h3>
+        <div class="muted small">{{ a.tag }} · {{ a.type_label }} ·
+          {% if a.status == "unregistered" %}<span class="tag warn">Unregistered</span>{% else %}Registered{% endif %}</div>
+      </div>
+      <div class="asset-score"><b>{{ a.score | score }}</b>{{ chip(a.band) }}</div>
+    </div>
+
+    <div class="facts">
+      <div><span>IP address</span><span class="mono" style="color: inherit; font-size: 8pt">{{ a.ip or "—" }}</span></div>
+      <div><span>MAC / vendor</span>{{ a.mac or "—" }}{% if a.vendor %} · {{ a.vendor }}{% endif %}</div>
+      <div><span>Last seen</span>{{ a.last_seen | local }}</div>
+      <div><span>Department</span>{{ a.department or "—" }}</div>
+      <div><span>Location</span>{{ a.location or "—" }}</div>
+      <div><span>Owner</span>{{ a.owner or "—" }}</div>
+    </div>
+
+    {% if a.formula %}<div class="formula">score = {{ a.formula }}   (criticality {{ a.criticality }}/12)</div>{% endif %}
+
+    {% if a.ports %}
+    <table class="data">
+      <thead><tr><th style="width: 22mm">Port</th><th style="width: 28mm">Service</th><th>Software</th></tr></thead>
+      <tbody>
+        {% for p in a.ports %}
+        <tr><td class="mono">{{ p.port }}/{{ p.protocol }}</td><td>{{ p.service or "—" }}</td><td>{{ p.software or "—" }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if a.findings %}
+    <table class="data">
+      <thead><tr><th>Finding</th><th style="width: 34mm">Component</th><th class="right" style="width: 13mm">Points</th></tr></thead>
+      <tbody>
+        {% for f in a.findings %}
+        <tr><td>{{ f.label }}</td><td class="muted">{{ f.component }}</td><td class="num">{{ f.points }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No findings with risk points.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+{# ============================================================ 8 method #}
+<section class="chapter" id="method">
+  <h2><span class="num">{{ num.method }}</span>Scope and methodology</h2>
+
+  <h3>Scope</h3>
+  <table class="data">
+    <tbody>
+      <tr><td style="width: 45mm" class="muted">Authorised subnets</td><td class="mono">{{ r.scope | join(", ") }}</td></tr>
+      <tr><td class="muted">Never scanned</td><td class="mono">{{ r.excluded | join(", ") or "—" }}</td></tr>
+      <tr><td class="muted">Completed scans</td><td>{{ r.scans_completed }}{% if r.first_scan_at %} since {{ r.first_scan_at | local("%d %b %Y") }}{% endif %}</td></tr>
+      {% if r.latest_scan %}
+      <tr><td class="muted">Latest scan</td><td>#{{ r.latest_scan.id }}, {{ r.latest_scan.profile | profile }} of {{ r.latest_scan.target }}, {{ r.latest_scan.finished_at | local }}: {{ plural(r.latest_scan.hosts_up, "host") }} up, {{ plural(r.latest_scan.open_ports, "open port") }}</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <h3>Risk model (version {{ model.version }})</h3>
+  <div class="formula">score = min(100, (exposure + vulnerabilities + drift + controls + inventory) x criticality multiplier)</div>
+  <table class="data">
+    <thead><tr><th>Component</th><th class="right">Max points</th><th>Rule</th></tr></thead>
+    <tbody>
+      {% for label, cap, rule in model.caps %}
+      <tr><td>{{ label }}</td><td class="num">{{ cap }}</td><td class="muted">{{ rule }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>
+    Bands:
+    {% for label, floor in model.bands %}{{ label }} from {{ floor }}{{ ", " if not loop.last else "." }}{% endfor %}
+    The criticality multiplier runs from 0.8x (4/12) to 1.5x (12/12). Versions and script findings
+    from earlier scans are carried forward while the same port stays open. The complete rule set,
+    including service weights and the CVE reference list, is published in CampusShield under
+    Settings → Risk model.
+  </p>
+
+  <h3>Limitations</h3>
+  <ul class="findings">
+    {% for line in model.limitations %}<li>{{ line }}</li>{% endfor %}
+  </ul>
+
+  <div class="signoff">
+    <div><i></i><b>Prepared by</b>{{ r.generated_by }}</div>
+    <div><i></i><b>Reviewed by</b>Name, designation, date</div>
+    <div><i></i><b>Approved by</b>Name, designation, date</div>
+  </div>
+</section>
+</body>
+</html>

@@ -55,7 +55,16 @@ const ACTIONS: Record<string, string> = {
   "asset.registered": "Registered a device",
   "asset.retired": "Retired an asset",
   "checklist.updated": "Updated the security checklist",
+  "report.generated": "Generated an audit report",
+  "report.deleted": "Deleted an audit report",
 };
+
+/** "226 KB" style file size. */
+export function fileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 
 /** "1m 05s" style duration between two ISO timestamps (end defaults to now). */
 export function duration(startIso: string | null, endIso?: string | null): string {

@@ -12,6 +12,7 @@ import type {
   AssetType,
   RiskModel,
   RiskSummary,
+  RiskTrendPoint,
 } from "@/lib/types";
 
 export type AssetFilters = { status?: AssetStatus; asset_type?: AssetType; q?: string };
@@ -70,6 +71,13 @@ export function useRiskSummary() {
   return useQuery({
     queryKey: ["assets", "risk-summary"], // under "assets": refreshed with every asset change
     queryFn: () => api<RiskSummary>("/risk/summary"),
+  });
+}
+
+export function useRiskTrend() {
+  return useQuery({
+    queryKey: ["assets", "risk-trend"], // refreshed with every asset change, like the summary
+    queryFn: () => api<RiskTrendPoint[]>("/risk/trend"),
   });
 }
 

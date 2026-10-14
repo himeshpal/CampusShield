@@ -3,6 +3,7 @@
 from app.models.alert import Alert
 from app.models.asset import Asset
 from app.models.audit import AuditLog
+from app.models.report import Report
 from app.models.risk import ChecklistEntry, ChecklistItem, CveRef, Finding, RiskScore
 from app.models.scan import Scan, ScanHost, ScanPort
 from app.models.setting import AppSetting
@@ -17,6 +18,7 @@ __all__ = [
     "ChecklistItem",
     "CveRef",
     "Finding",
+    "Report",
     "RiskScore",
     "Scan",
     "ScanHost",

@@ -132,3 +132,42 @@ SCRIPT_FINDINGS = [
          title="Redis answers without authentication",
          detail="The server returned its configuration to an unauthenticated client."),
 ]  # fmt: skip
+
+# Stated in Settings -> Risk model and in every PDF report.
+LIMITATIONS = [
+    "Versions come from service banners: vendor backports (e.g. Ubuntu patching "
+    "OpenSSH without changing its version) are invisible, so a matched CVE can be "
+    "a false positive and should be confirmed on the host.",
+    "Only TCP services in the scan profile are assessed; UDP (e.g. SNMP) is not scanned.",
+    "Controls a scan cannot see come from the manual checklist and are only as good "
+    "as the answers recorded there.",
+]
+
+# ---------------------------------------------------------------- remediation
+# What to do about each finding, used for the report's recommendations.
+SERVICE_REMEDIATION: dict[str, str] = {
+    "telnet": "Disable Telnet and administer the device over SSH",
+    "docker": "Close the Docker API port or protect it with TLS client certificates",
+    "microsoft-ds": "Restrict SMB file sharing to the networks that need it",
+    "ms-wbt-server": "Put Remote Desktop behind the VPN with Network Level Authentication",
+    "vnc": "Remove direct VNC access; tunnel it over SSH or the VPN",
+    "mongodb": "Restrict MongoDB to the application servers (firewall or bind address)",
+    "ftp": "Replace FTP with SFTP so credentials and files are encrypted",
+    "mysql": "Restrict MySQL to the application servers (firewall or bind address)",
+    "postgresql": "Restrict PostgreSQL to the application servers (pg_hba / firewall)",
+    "ms-sql-s": "Restrict SQL Server to the application servers (firewall)",
+    "oracle-tns": "Restrict the Oracle listener to the application servers (firewall)",
+    "redis": "Bind Redis to localhost or a private VLAN and require a password",
+    "memcache": "Bind Memcached to localhost or a private VLAN",
+    "elasticsearch": "Restrict Elasticsearch to internal clients and enable authentication",
+    "netbios-ssn": "Disable NetBIOS over TCP/IP where it is not needed",
+    "mqtt": "Require authentication and TLS on the MQTT broker",
+    "snmp": "Disable SNMP v1/v2c or move to SNMPv3",
+    "rtsp": "Move cameras to an isolated CCTV VLAN and require RTSP authentication",
+    "http": "Serve the web interface over HTTPS and redirect plain HTTP",
+    "http-proxy": "Serve the web interface over HTTPS and redirect plain HTTP",
+}
+SCRIPT_REMEDIATION: dict[str, str] = {
+    "Anonymous FTP login allowed": "Disable anonymous FTP login",
+    "Redis answers without authentication": "Enable Redis authentication (requirepass / ACL)",
+}

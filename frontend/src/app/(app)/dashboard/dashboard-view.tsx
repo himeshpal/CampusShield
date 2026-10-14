@@ -15,22 +15,28 @@ import {
 import Link from "next/link";
 
 import { ActivityFeed } from "@/components/activity-feed";
+import { CampusTrend } from "@/components/risk/campus-trend";
 import { PageHeader } from "@/components/page-header";
 import { RiskBadge } from "@/components/risk/risk-badge";
 import { RiskDistribution } from "@/components/risk/risk-distribution";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveScanCard } from "@/components/scans/active-scan-card";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useAssetSummary, useRiskSummary } from "@/hooks/use-assets";
+import { useAssetSummary, useRiskSummary, useRiskTrend } from "@/hooks/use-assets";
 import { useChecklistSummary } from "@/hooks/use-checklist";
+import { useLiveRefresh } from "@/hooks/use-live-refresh";
+import { reportPdfUrl, useReports } from "@/hooks/use-reports";
 import { useActiveScan, useScanHistory } from "@/hooks/use-scans";
+import { PROFILE_LABELS } from "@/components/scans/scan-status-badge";
+import { timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type StatKey = "assets" | "unregistered" | "critical" | "alerts";
 
-// "critical" and "alerts" get their values in the risk-scoring and alerting phases.
+// "alerts" gets its value in the alerting phase (7).
 const STATS: {
   key: StatKey;
   label: string;
@@ -107,12 +113,17 @@ function greeting(): string {
 }
 
 export function DashboardView() {
+  useLiveRefresh();
   const { user } = useCurrentUser();
   const { data: active } = useActiveScan();
   const { data: scans } = useScanHistory();
   const { data: inventory } = useAssetSummary();
   const { data: risk } = useRiskSummary();
   const { data: checklist } = useChecklistSummary();
+  const { data: trend } = useRiskTrend();
+  const { data: reports } = useReports();
+  const lastScan = scans?.find((s) => s.status === "completed");
+  const lastReport = reports?.[0];
   const values: Record<StatKey, number | undefined> = {
     assets: inventory?.registered,
     unregistered: inventory?.unregistered,
@@ -124,7 +135,7 @@ export function DashboardView() {
     scan: !!scans?.some((s) => s.status === "completed"),
     inventory: !!inventory && inventory.registered > 0 && inventory.unregistered === 0,
     checklist: !!checklist && checklist.total > 0 && checklist.answered === checklist.total,
-    report: false,
+    report: !!reports?.length,
   };
 
   return (
@@ -137,12 +148,24 @@ export function DashboardView() {
             : "Campus-wide security posture at a glance."
         }
         actions={
-          <Button asChild>
-            <Link href="/scans">
-              <Radar />
-              Run network scan
-            </Link>
-          </Button>
+          <>
+            <span
+              className="mr-2 hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex"
+              title="The overview refreshes itself every 30 seconds"
+            >
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full rounded-full motion-safe:animate-ping bg-primary/60" />
+                <span className="relative inline-flex size-2 rounded-full bg-primary" />
+              </span>
+              Live
+            </span>
+            <Button asChild>
+              <Link href="/scans">
+                <Radar />
+                Run network scan
+              </Link>
+            </Button>
+          </>
         }
       />
 
@@ -259,6 +282,97 @@ export function DashboardView() {
                 </li>
               ))}
             </ol>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Campus risk over time</CardTitle>
+            <CardDescription>Average score after every scan and checklist update</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!trend ? (
+              <Skeleton className="h-52 w-full" />
+            ) : trend.length < 2 ? (
+              <p className="flex h-52 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                The trend appears after the second scoring event.
+              </p>
+            ) : (
+              <CampusTrend points={trend} />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Audit status</CardTitle>
+            <CardDescription>Where the evidence for the next report stands</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <Radar className="size-4.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">Latest scan</p>
+                {lastScan ? (
+                  <p className="text-xs text-muted-foreground">
+                    <Link href={`/scans/${lastScan.id}`} className="hover:underline">
+                      #{lastScan.id}
+                    </Link>{" "}
+                    · {PROFILE_LABELS[lastScan.profile]} · {timeAgo(lastScan.finished_at ?? lastScan.created_at)} ·{" "}
+                    {lastScan.hosts_up} hosts
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No completed scan yet</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <ClipboardCheck className="size-4.5" />
+              </div>
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-sm font-medium">Security checklist</p>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {checklist ? `${checklist.answered} / ${checklist.total}` : "—"}
+                  </span>
+                </div>
+                <Progress
+                  value={checklist?.total ? (100 * checklist.answered) / checklist.total : 0}
+                  aria-label="Checklist answers recorded"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {checklist?.gaps ? `${checklist.gaps} controls recorded as missing` : "Answers recorded so far"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <FileText className="size-4.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">Latest report</p>
+                {lastReport ? (
+                  <p className="truncate text-xs text-muted-foreground">
+                    <a href={reportPdfUrl(lastReport.id)} target="_blank" rel="noopener" className="hover:underline">
+                      {lastReport.number}
+                    </a>{" "}
+                    · {timeAgo(lastReport.created_at)} · {lastReport.pages} pages
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No report generated yet</p>
+                )}
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/reports">{lastReport ? "Reports" : "Generate"}</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

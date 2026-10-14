@@ -47,3 +47,10 @@ class RiskModel(BaseModel):
     end_of_life: list[dict]
     script_findings: list[dict]
     limitations: list[str]
+
+
+class TrendPointOut(BaseModel):
+    at: datetime
+    average: float
+    assessed: int
+    bands: dict[str, int]

@@ -128,3 +128,34 @@ Next.js 16 dev server, Chromium (Playwright 1.64)
 earlier phases on this laptop (API endpoints still answer in < 50 ms). Windows Defender
 real-time scanning of the Next.js dev build and other running applications are the
 likely cause; a Defender exclusion for the project folder is the usual remedy.
+
+---
+
+# Addendum: Phase 6 (dashboard and PDF report)
+
+**Results:** backend **211 / 211** (incl. live lab), E2E **38 / 38**, 0 console errors;
+dashboard and reports pages have no horizontal overflow at 390, 768 and 1280 px.
+A full report of the lab (7 devices) is 17 A4 pages / ~285 KB and renders in ~2.3 s;
+"summary only" is 10 pages.
+
+| ID | Check | Result |
+|---|---|---|
+| TC-34 | Report headline numbers equal the dashboard's (average, band counts) | Pass |
+| TC-35 | All six Apache 2.4.49 CVEs become one critical "upgrade" action; points capped like the score | Pass |
+| TC-36 | Same service on several devices is one action listing each device and port | Pass |
+| TC-37 | Unregistered device gets "identify / register" and no checklist actions | Pass |
+| TC-38 | PDF served inline or as attachment, `Cache-Control: private, no-store`, dated file name | Pass |
+| TC-39 | Report routes: 401 without login; auditor may generate (201) but not delete (403) | Pass |
+| TC-40 | Generating and deleting are written to the audit log | Pass |
+| TC-41 | Report before any scan renders (explains that nothing was assessed) | Pass |
+| TC-42 | Campus trend groups scores written within 60 s into one point | Pass |
+| TC-43 | Visual check of every PDF page: running header, page x of y, table of contents page numbers, no clipped tables | Pass after D-16 |
+
+## Defects found and fixed during Phase 6
+
+| ID | Defect | Root cause | Fix |
+|---|---|---|---|
+| D-15 | First draft of the recommendations listed six separate "upgrade Apache" actions, and the "confirm controls" action included the unregistered device | Grouping by CVE id instead of software; checklist gaps not filtered by status | Grouped by software version with all CVE ids in the reason; checklist actions only for registered devices; points capped per score component |
+| D-16 | PDF running header (report title) and footer (report number) were empty | WeasyPrint only takes `string-set` from rendered elements; the source spans were `display: none` | Strings taken from the visible cover title and report number |
+| D-17 | Next.js "blocking prerender" error on /reports | Date-based title placeholder computed while prerendering | Placeholder computed only while the dialog is open |
+

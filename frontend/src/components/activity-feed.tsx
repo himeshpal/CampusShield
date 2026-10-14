@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ClipboardCheck,
+  FileText,
   KeyRound,
   LogIn,
   LogOut,
@@ -42,6 +43,8 @@ const ICONS: Record<string, LucideIcon> = {
   "asset.retired": Server,
   "asset.seeded": Server,
   "checklist.updated": ClipboardCheck,
+  "report.generated": FileText,
+  "report.deleted": FileText,
 };
 
 export function ActivityFeed({ limit = 6 }: { limit?: number }) {

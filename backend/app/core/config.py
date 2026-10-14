@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     # addresses never scanned (comma-separated), e.g. the Docker bridge gateway in the lab
     scan_exclude: str = ""
 
+    # PDF audit report
+    institution_name: str = "Campus IT network"
+    report_timezone: str = "Asia/Kolkata"
+
     # automation
     n8n_webhook_url: str | None = None
     n8n_webhook_secret: str | None = None

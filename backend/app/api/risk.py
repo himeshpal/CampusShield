@@ -1,11 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, DbSession
 from app.models import Asset, ChecklistItem, CveRef
-from app.schemas.risk import RiskDriver, RiskModel, RiskSummary, TopAsset
+from app.schemas.risk import RiskDriver, RiskModel, RiskSummary, TopAsset, TrendPointOut
 from app.services.risk import rules
 from app.services.risk.service import latest_scores
+from app.services.risk.trend import campus_trend
 
 router = APIRouter(prefix="/risk", tags=["risk"])
 
@@ -50,6 +51,14 @@ def risk_summary(_: CurrentUser, db: DbSession) -> RiskSummary:
             for a in ranked[:5]
         ],
     )
+
+
+@router.get("/trend", response_model=list[TrendPointOut])
+def risk_trend(
+    _: CurrentUser, db: DbSession, limit: int = Query(default=40, ge=2, le=200)
+) -> list[TrendPointOut]:
+    """Campus average score after each scoring event (scan, checklist save, rescore)."""
+    return [TrendPointOut.model_validate(p, from_attributes=True) for p in campus_trend(db, limit)]
 
 
 @router.get("/model", response_model=RiskModel)
@@ -118,12 +127,5 @@ def risk_model(_: CurrentUser, db: DbSession) -> RiskModel:
         script_findings=[
             {k: r[k] for k in ("script", "points", "title")} for r in rules.SCRIPT_FINDINGS
         ],
-        limitations=[
-            "Versions come from service banners: vendor backports (e.g. Ubuntu patching "
-            "OpenSSH without changing its version) are invisible, so a matched CVE can be "
-            "a false positive and should be confirmed on the host.",
-            "Only TCP services in the scan profile are assessed; UDP (e.g. SNMP) is not scanned.",
-            "Controls a scan cannot see come from the manual checklist and are only as good "
-            "as the answers recorded there.",
-        ],
+        limitations=rules.LIMITATIONS,
     )

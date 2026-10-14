@@ -294,3 +294,37 @@ export type ChecklistSummary = {
   gaps: number;
   coverage: { key: string; label: string; counts: Record<ControlStatus, number> }[];
 };
+
+export type RiskTrendPoint = {
+  at: string;
+  average: number;
+  assessed: number;
+  bands: Record<RiskBand, number>;
+};
+
+export type ReportSummary = {
+  assets: number;
+  unregistered: number;
+  assessed: number;
+  average: number | null;
+  average_band: RiskBand | null;
+  bands: Record<RiskBand, number>;
+  vulnerabilities: number;
+  recommendations: number;
+  checklist_answered: number;
+  checklist_total: number;
+  latest_scan_id: number | null;
+};
+
+export type Report = {
+  id: number;
+  number: string;
+  title: string;
+  include_details: boolean;
+  summary: ReportSummary;
+  pages: number;
+  size_bytes: number;
+  sha256: string;
+  generated_by: string | null;
+  created_at: string;
+};

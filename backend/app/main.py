@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 
-from app.api import assets, audit_log, auth, checklist, health, risk, scans, users
+from app.api import assets, audit_log, auth, checklist, health, reports, risk, scans, users
 from app.core.config import get_settings
 from app.core.db import SessionLocal
 from app.services.matching import backfill_unmatched_scans
@@ -32,7 +32,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title=f"{settings.app_name} API", version="0.4.0", lifespan=lifespan)
+app = FastAPI(title=f"{settings.app_name} API", version="0.6.0", lifespan=lifespan)
 
 # Same baseline headers the Next.js app sets on its pages. Needed here too: Next does not
 # add them to responses it proxies, and the API is also reachable directly on :8000.
@@ -60,5 +60,6 @@ for router in (
     assets.router,
     risk.router,
     checklist.router,
+    reports.router,
 ):
     app.include_router(router, prefix="/api/v1")

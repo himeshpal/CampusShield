@@ -104,6 +104,30 @@ patch policy, default credentials) are recorded per registered asset as **In pla
 who/when. Saving an answer rescores the asset immediately and is written to the audit
 log. Unregistered devices have no owner and must be registered before they are assessed.
 
+## Dashboard and audit report
+
+The dashboard refreshes itself every 30 seconds (and when the tab regains focus), so a scan
+or checklist answer recorded elsewhere shows up without reloading. Besides totals and the
+risk distribution it shows the **campus risk trend** (average score after every scan and
+checklist update) and an **audit status** card: latest scan, checklist completion, latest report.
+
+**Reports** generates a PDF with WeasyPrint from the live data (about 2-3 s for the lab).
+Any signed-in user can generate one; only admins can delete one, and both are audit-logged.
+Each PDF is a point-in-time snapshot stored in the database with its SHA-256, so the history
+can be compared over time. Contents:
+
+1. Executive summary: headline numbers, findings written from the data, band distribution,
+   risk drivers, campus trend
+2. Priority recommendations: rule-based actions per finding (e.g. all CVEs of one Apache
+   version become one upgrade), merged across devices, ordered by priority and risk points
+3. Asset risk register, 4. vulnerabilities and misconfigurations, 5. unregistered devices,
+   6. checklist coverage and recorded gaps
+7. Per-device evidence: ports, score formula, every finding (optional: "Summary only" skips it)
+8. Scope, risk model, limitations and a sign-off block
+
+The cover shows `INSTITUTION_NAME` from `.env`; times are printed in `REPORT_TIMEZONE`
+(default Asia/Kolkata). Templates: `backend/app/services/report/templates/`.
+
 ## Tests
 
 ```powershell
