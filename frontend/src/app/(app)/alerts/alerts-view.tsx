@@ -81,7 +81,7 @@ export function AlertsView() {
     <>
       <PageHeader
         title="Alerts"
-        description="Changes detected between scans: new devices, opened ports, hosts that stopped responding, risk increases."
+        description="Changes detected between scans and security events reported by the Wazuh agent."
         actions={
           isAdmin && !!summary?.open && (
             <Button
@@ -194,9 +194,7 @@ export function AlertsView() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="any">All types</SelectItem>
-            {(Object.keys(KIND) as AlertKind[])
-              .filter((k) => k !== "wazuh")
-              .map((k) => (
+            {(Object.keys(KIND) as AlertKind[]).map((k) => (
                 <SelectItem key={k} value={k}>
                   {KIND[k].label}
                 </SelectItem>

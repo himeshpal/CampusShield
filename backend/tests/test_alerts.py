@@ -40,22 +40,6 @@ def lab_xml(
 
 
 @pytest.fixture
-def webhook(monkeypatch):
-    """n8n stand-in: records every event the backend posts."""
-    calls: list[dict] = []
-
-    def post(url, payload, headers):
-        calls.append({"url": url, "payload": payload, "headers": headers})
-        return True, None
-
-    settings = get_settings()
-    monkeypatch.setattr(settings, "n8n_webhook_url", "http://n8n:5678/webhook/campusshield-events")
-    monkeypatch.setattr(settings, "n8n_webhook_secret", "s3cret")
-    monkeypatch.setattr(notify, "post_webhook", post)
-    return calls
-
-
-@pytest.fixture
 def lab(db, admin_client, monkeypatch, webhook):
     """Run scans against edited versions of the recorded lab. Returns run(xml, profile)."""
     seed_demo_assets(db)

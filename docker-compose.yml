@@ -51,8 +51,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       SCANNER_SELF_IP: 172.25.0.5
-      # the Docker bridge gateway is the host machine, not a campus device
-      SCAN_EXCLUDE: 172.25.0.1
+      # the Docker bridge gateway is the host machine and .4 the Wazuh manager:
+      # infrastructure, not campus devices
+      SCAN_EXCLUDE: 172.25.0.1,172.25.0.4
       # pre-register the 6 legitimate lab devices; the Raspberry Pi stays unknown
       DEMO_DATA: "true"
     # raw sockets for SYN scan, OS detection and ARP discovery
@@ -119,6 +120,25 @@ services:
       - "127.0.0.1:8025:8025"
     networks: [app_net]
 
+  # SIEM (Phase 8): only starts with  docker compose --profile siem up -d
+  # (or .\scripts\stack.ps1 up -Siem). Wazuh manager only (~0.5-1 GB RAM); its alerts go to
+  # CampusShield, which acts as the dashboard. The agent runs on lab-pc-01.
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.14.7
+    profiles: [siem]
+    restart: unless-stopped
+    hostname: wazuh-manager
+    mem_limit: 1g
+    environment:
+      CAMPUSSHIELD_API: http://172.25.0.5:8000
+      SERVICE_API_KEY: ${SERVICE_API_KEY}
+    volumes:
+      - ./wazuh:/campusshield:ro
+      # runs after the image's own init scripts (s6 cont-init.d order)
+      - ./wazuh/campusshield-init.sh:/etc/cont-init.d/9-campusshield
+    networks:
+      lab_net: { ipv4_address: 172.25.0.4 }
+
   # ---------------------------------------------------------------- campus lab
   # .10  ERP portal              - registered, business critical
   erp-server:
@@ -151,6 +171,7 @@ services:
 
   # .20  Computer-lab desktop with anonymous FTP + SSH - registered, high risk
   #      (Telnet is switched on live by scripts/demo.ps1 to trigger a change alert)
+  #      Wazuh-monitored host: its agent reports to wazuh-manager (.4)
   lab-pc-01:
     <<: *lab
     build: ./lab/lab-pc

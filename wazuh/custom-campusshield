@@ -1,0 +1,46 @@
+#!/var/ossec/framework/python/bin/python3
+"""Wazuh integration: POST each alert to CampusShield.
+
+Called by wazuh-integratord as: custom-campusshield <alert_file> <api_key> <hook_url>
+(see <integration> in ossec.conf). Standard library only, so it runs on Wazuh's bundled
+Python without extra packages. Failures are logged and never block the manager.
+"""
+
+import json
+import sys
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+
+LOG = "/var/ossec/logs/integrations.log"
+
+
+def log(message: str) -> None:
+    with open(LOG, "a", encoding="utf-8") as fh:
+        fh.write(f"{datetime.now(timezone.utc).isoformat()} custom-campusshield: {message}\n")
+
+
+def main() -> int:
+    if len(sys.argv) < 4:
+        log(f"bad arguments: {sys.argv[1:]}")
+        return 1
+    alert_file, api_key, hook_url = sys.argv[1], sys.argv[2], sys.argv[3]
+    with open(alert_file, encoding="utf-8") as fh:
+        alert = json.load(fh)
+    request = urllib.request.Request(
+        hook_url,
+        data=json.dumps(alert).encode(),
+        headers={"Content-Type": "application/json", "X-API-Key": api_key},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            response.read()
+    except (urllib.error.URLError, TimeoutError) as exc:
+        log(f"rule {alert.get('rule', {}).get('id')}: {exc}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

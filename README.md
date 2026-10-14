@@ -3,8 +3,9 @@
 Campus cybersecurity audit & asset management platform — B.Tech CSE final-year major project.
 
 Nmap discovery → persistent asset inventory → unregistered-device detection → explainable risk
-scoring (scan findings + asset criticality + manual checklist) → change alerts via n8n → live
-dashboard and PDF audit report. Demoed against a self-contained 7-device lab network.
+scoring (scan findings + asset criticality + manual checklist) → change alerts via n8n →
+Wazuh host monitoring → live dashboard and PDF audit report. Demoed against a self-contained
+7-device lab network (walkthrough: [docs/demo-script.md](docs/demo-script.md)).
 
 ## Stack
 
@@ -13,7 +14,8 @@ dashboard and PDF audit report. Demoed against a self-contained 7-device lab net
 | Frontend | Next.js 16 (App Router, TS), Tailwind 4, shadcn/ui, Recharts, TanStack Query |
 | Backend | FastAPI, SQLAlchemy 2, Alembic, python-nmap, WeasyPrint |
 | Data | PostgreSQL 17 (SQLite in unit tests) |
-| Automation | n8n (scheduled scans, Telegram + email alerts) |
+| Automation | n8n (scheduled scans, Telegram + email alerts), Mailpit (demo inbox) |
+| SIEM | Wazuh 4.14 manager + one agent (on the lab PC), alerts forwarded to CampusShield |
 | Lab | 7 Docker containers on an isolated `172.25.0.0/24` network |
 
 ## Running it
@@ -24,6 +26,7 @@ Prerequisites: Docker Desktop (WSL2), Node.js 20+.
 copy .env.example .env          # first time only, then change the secrets
 .\scripts\stack.ps1 up          # Docker + db + backend + lab
 .\scripts\stack.ps1 up -Automation   # ...plus n8n + Mailpit (alert delivery, scheduled scans)
+.\scripts\stack.ps1 up -Automation -Siem   # ...plus the Wazuh manager (~1 GB RAM more)
 cd frontend; npm install; npm run dev
 ```
 
@@ -174,6 +177,40 @@ the repository every time n8n starts (`n8n/start.sh`).
 .\scripts\demo.ps1 reset        # undo every change
 ```
 
+## Wazuh host monitoring (SIEM)
+
+The doc's final module: Wazuh on **one monitored host**. The lab PC (`lab-pc-01`, .20)
+runs a Wazuh agent (`lab/lab-pc/`) that reads its SSH log and watches file integrity in
+real time (account files and the anonymous FTP share). The Wazuh **manager** (`wazuh/`,
+172.25.0.4, compose profile `siem`) analyses the events with the standard ruleset plus
+two CampusShield rules, and a custom integration (`wazuh/custom-campusshield`) POSTs every
+alert of level 5+ to `POST /api/v1/automation/wazuh` (service API key).
+
+CampusShield is the dashboard: no Wazuh indexer or dashboard is run, which keeps the
+footprint to the manager (~0.5-1 GB RAM) on a 16 GB laptop. Each Wazuh alert becomes a
+CampusShield alert of type *Host event (Wazuh)*:
+
+- tied to the asset the agent registered with (by IP), and the attack's **source IP** is
+  looked up in the inventory too, e.g. *"Source 172.25.0.66: CS-0007, an unregistered
+  device"*: the scan's rogue device is now seen attacking the lab PC;
+- severity from the rule level (5-6 low, 7-9 medium, 10-11 high, 12+ critical);
+- repeats of the same rule on the same host within 15 minutes are merged with a counter
+  (nine bad passwords = one alert, "9 events"), so the channels are not flooded;
+- delivered by email / Telegram through the same n8n pipeline and threshold as scan alerts,
+  and listed in the PDF report and on the asset's page.
+
+```powershell
+.\scripts\stack.ps1 up -Automation -Siem
+# wait ~1 minute after start: the agent enrols and builds its file-integrity baseline
+.\scripts\demo.ps1 brute-force   # rogue Pi guesses SSH passwords -> "Dropbear: brute force attempt" (high)
+.\scripts\demo.ps1 add-user      # new account on the lab PC     -> "User accounts changed" (high)
+.\scripts\demo.ps1 ftp-upload    # file on the anonymous share   -> "File uploaded to the anonymous FTP share"
+.\scripts\demo.ps1 reset
+```
+
+The manager keeps no volume: on restart the agent enrols again, and the history stays in
+CampusShield. Settings → Notifications shows the last event received from Wazuh.
+
 ## Tests
 
 ```powershell
@@ -184,6 +221,10 @@ docker compose exec backend pytest -m "not lab"   # skip the live lab checks
 # frontend: browser end-to-end tests against the running stack
 cd frontend; npm run test:e2e
 ```
+
+`tests/test_access_control.py` sweeps every API operation from the OpenAPI schema: each
+needs a session (or the service key for `/automation/*`), and every write needs the admin
+role except signing out and generating reports, so a new endpoint cannot ship unprotected.
 
 Database schema changes go through Alembic:
 `docker compose exec backend alembic revision --autogenerate -m "describe change"`,
@@ -196,11 +237,12 @@ applied automatically when the backend starts.
 | .10 | ERP portal (HP) | HTTP/HTTPS | yes |
 | .11 | Dept website (HP) | Apache 2.4.49 — CVE-2021-41773 | yes |
 | .12 | Database server (HP) | MySQL 5.7 on 3306 | yes |
-| .20 | Lab desktop (Dell) | Anonymous FTP, SSH | yes |
+| .20 | Lab desktop (Dell), Wazuh-monitored host | Anonymous FTP, SSH | yes |
 | .30 | Wi-Fi AP (Ubiquiti) | SSH, HTTP admin | yes |
 | .40 | CCTV camera (Hikvision) | Telnet, RTSP, HTTP | yes |
 | .66 | Rogue device (Raspberry Pi) | Open Redis, web panel | **no** |
 
+Infrastructure, never scanned (`SCAN_EXCLUDE`): .1 Docker gateway, .4 Wazuh manager.
 The backend is the only container on both networks (`172.25.0.5`); it excludes itself from scans.
 Scanning is restricted to `AUTHORIZED_SUBNETS` (scope guard).
 
@@ -210,7 +252,8 @@ Scanning is restricted to `AUTHORIZED_SUBNETS` (scope guard).
 backend/    FastAPI app (app/api, core, models, schemas, services) + tests
 frontend/   Next.js app
 lab/        Dockerfiles for the simulated campus devices
-n8n/        exported n8n workflows
+n8n/        n8n workflows + start script (loaded on every n8n start)
+wazuh/      Wazuh manager additions: init script, integration, local rules
 scripts/    stack control and demo helpers
 docs/       report material, test-case table, screenshots
 ```

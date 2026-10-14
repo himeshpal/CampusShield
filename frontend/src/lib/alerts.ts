@@ -1,5 +1,4 @@
 import {
-  ArrowUpRight,
   DoorClosed,
   DoorOpen,
   Info,
@@ -7,6 +6,7 @@ import {
   ShieldAlert,
   ShieldMinus,
   ShieldQuestion,
+  Siren,
   TrendingUp,
   WifiOff,
   type LucideIcon,
@@ -35,5 +35,5 @@ export const KIND: Record<AlertKind, { label: string; icon: LucideIcon }> = {
   port_opened: { label: "Port opened", icon: DoorOpen },
   port_closed: { label: "Port closed", icon: DoorClosed },
   risk_jump: { label: "Risk rose", icon: TrendingUp },
-  wazuh: { label: "Wazuh", icon: ArrowUpRight },
+  wazuh: { label: "Host event (Wazuh)", icon: Siren },
 };

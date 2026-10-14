@@ -88,6 +88,35 @@ function Delivery({ alert }: { alert: Alert }) {
   );
 }
 
+/** Rule, how often it fired and the attacking device, for alerts from the Wazuh agent. */
+function WazuhFacts({ alert }: { alert: Alert }) {
+  const p = alert.payload as {
+    rule_id?: string;
+    level?: number;
+    count?: number;
+    mitre?: string[];
+    srcip?: string;
+    source_asset_id?: number | null;
+  };
+  return (
+    <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+      <span>
+        Wazuh rule {p.rule_id} · level {p.level}
+      </span>
+      {(p.count ?? 1) > 1 && <span className="font-medium text-foreground/80">{p.count} events</span>}
+      {!!p.mitre?.length && <span>MITRE ATT&amp;CK {p.mitre.join(", ")}</span>}
+      {p.srcip &&
+        (p.source_asset_id ? (
+          <Link href={`/assets/${p.source_asset_id}`} className="hover:underline">
+            from {p.srcip}
+          </Link>
+        ) : (
+          <span>from {p.srcip}</span>
+        ))}
+    </p>
+  );
+}
+
 export function AlertItem({
   alert,
   canAct,
@@ -138,6 +167,7 @@ export function AlertItem({
           )}
         </div>
         <p className={cn("text-sm font-medium", resolved && "text-muted-foreground")}>{alert.title}</p>
+        {alert.kind === "wazuh" && <WazuhFacts alert={alert} />}
         {!compact && <p className="text-sm text-muted-foreground">{alert.message}</p>}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <span title={dateTime(alert.created_at)}>{timeAgo(alert.created_at)}</span>

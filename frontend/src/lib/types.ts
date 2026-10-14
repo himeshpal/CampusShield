@@ -376,4 +376,5 @@ export type NotificationSettings = {
   webhook_host: string | null;
   app_url: string;
   channels: Partial<Record<AlertChannel, ChannelResult>>;
+  wazuh: { last_event_at: string; last_agent: string | null; last_rule: string | null; events: number } | null;
 };

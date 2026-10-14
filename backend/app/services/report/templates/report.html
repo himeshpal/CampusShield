@@ -10,13 +10,15 @@
 </head>
 <body>
 {% macro chip(band) %}<span class="chip {{ band or 'none' }}">{{ band | band }}</span>{% endmacro %}
-{% macro severity(level) %}<span class="chip {{ level if level in band_order else 'info' }}">{{ level | capitalize }}</span>{% endmacro %}
+{# severities: colour only for the three that need action, like the web app #}
+{% macro severity(level) %}<span class="chip {{ level if level in ('medium', 'high', 'critical') else 'info' }}">{{ level | capitalize }}</span>{% endmacro %}
 {% set sections = [
   ("summary", "Executive summary"),
   ("actions", "Priority recommendations"),
   ("register", "Asset risk register"),
   ("vulns", "Vulnerabilities and misconfigurations"),
   ("unregistered", "Unregistered devices"),
+  ("alerts", "Open alerts and security events"),
   ("checklist", "Security checklist"),
 ] + ([("details", "Asset details")] if r.include_details else []) + [
   ("method", "Scope and methodology"),
@@ -263,6 +265,33 @@
   </table>
   {% else %}
   <div class="empty-state">Every device seen on the network is registered in the inventory.</div>
+  {% endif %}
+</section>
+
+{# ============================================================ alerts #}
+<section class="chapter" id="alerts">
+  <h2><span class="num">{{ num.alerts }}</span>Open alerts and security events</h2>
+  <p class="lead">
+    Unresolved changes detected between scans (new devices, opened ports, hosts not responding,
+    risk increases) and host security events reported by the Wazuh agent.
+    {% if r.open_alerts_total > r.open_alerts | length %}The {{ r.open_alerts | length }} most severe of {{ r.open_alerts_total }} are listed.{% endif %}
+  </p>
+  {% if r.open_alerts %}
+  <table class="data">
+    <thead><tr><th style="width: 19mm">Severity</th><th>Alert</th><th style="width: 24mm">Source</th><th style="width: 26mm">Raised</th></tr></thead>
+    <tbody>
+      {% for a in r.open_alerts %}
+      <tr>
+        <td>{{ severity(a.severity) }}</td>
+        <td><b>{{ a.title }}</b><span class="sub">{{ a.message }}{% if a.count > 1 %} ({{ a.count }} events){% endif %}</span></td>
+        <td>{{ "Wazuh agent" if a.kind == "wazuh" else "Scan comparison" }}{% if a.status == "acknowledged" %}<span class="sub">acknowledged</span>{% endif %}</td>
+        <td class="nowrap">{{ a.created_at | local("%d %b, %H:%M") }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No unresolved alerts at the time of this report.</div>
   {% endif %}
 </section>
 

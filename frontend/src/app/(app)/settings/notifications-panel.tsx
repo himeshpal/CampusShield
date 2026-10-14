@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, Loader2, Mail, Send, Webhook } from "lucide-react";
+import { CalendarClock, Loader2, Mail, Send, Siren, Webhook } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -164,6 +164,30 @@ export function NotificationsPanel({ isAdmin }: { isAdmin: boolean }) {
                 ))}
               </SelectContent>
             </Select>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Wazuh host monitoring</CardTitle>
+            <CardDescription>
+              The Wazuh agent on lab-pc-01 reports SSH attacks and file changes; the manager
+              forwards level 5+ events here (stack.ps1 up -Siem).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-start gap-3 text-sm">
+            <Siren className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+            {settings.wazuh ? (
+              <div>
+                <p className="font-medium">Last event {timeAgo(settings.wazuh.last_event_at)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {settings.wazuh.last_rule} · agent {settings.wazuh.last_agent} ·{" "}
+                  {settings.wazuh.events} events received
+                </p>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No event received yet. Start the SIEM profile to connect.</p>
+            )}
           </CardContent>
         </Card>
 

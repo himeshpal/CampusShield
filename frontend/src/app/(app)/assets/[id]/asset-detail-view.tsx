@@ -12,6 +12,7 @@ import {
   CriticalityBadge,
   MatchBadge,
 } from "@/components/assets/asset-badges";
+import { AlertItem } from "@/components/alerts/alert-item";
 import { AssetFormDialog } from "@/components/assets/asset-form-dialog";
 import { AssetChecklistCard } from "@/components/checklist/asset-checklist-card";
 import { RiskMeter } from "@/components/risk/risk-meter";
@@ -29,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAlerts } from "@/hooks/use-alerts";
 import { useAsset, useSaveAsset } from "@/hooks/use-assets";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { ApiError } from "@/lib/api";
@@ -160,6 +162,7 @@ export function AssetDetailView() {
               </CardContent>
             </Card>
           )}
+          <AssetAlerts assetId={asset.id} canAct={isAdmin} />
           <ExposureCard asset={asset} />
           <HistoryCard asset={asset} />
         </div>
@@ -176,6 +179,32 @@ export function AssetDetailView() {
         <AssetFormDialog mode={dialog} asset={asset} open onOpenChange={(o) => !o && setDialog(null)} />
       )}
     </>
+  );
+}
+
+/** Unresolved alerts about this device: scan changes and Wazuh host events. */
+function AssetAlerts({ assetId, canAct }: { assetId: number; canAct: boolean }) {
+  const { data } = useAlerts({ asset_id: assetId, unresolved: true, limit: 20 });
+  if (!data?.items.length) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Open alerts</CardTitle>
+        <CardDescription>
+          {data.total} unresolved for this device.{" "}
+          <Link href="/alerts" className="text-primary hover:underline">
+            All alerts
+          </Link>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3">
+          {data.items.map((alert) => (
+            <AlertItem key={alert.id} alert={alert} canAct={canAct} />
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }
 

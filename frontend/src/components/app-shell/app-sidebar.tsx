@@ -77,11 +77,6 @@ function NavGroups({ pathname }: { pathname: string | null }) {
                   {open}
                 </SidebarMenuBadge>
               )}
-              {item.phase && (
-                <SidebarMenuBadge className="text-[10px] font-normal text-muted-foreground">
-                  Soon
-                </SidebarMenuBadge>
-              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

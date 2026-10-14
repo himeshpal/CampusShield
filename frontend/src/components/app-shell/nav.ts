@@ -13,8 +13,6 @@ export type NavItem = {
   title: string;
   href: string;
   icon: LucideIcon;
-  /** Build phase that delivers the page; shown as "Soon" until then. */
-  phase?: number;
 };
 
 export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [

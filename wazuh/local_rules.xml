@@ -1,0 +1,20 @@
+<!-- CampusShield rules on top of the Wazuh ruleset (installed by campusshield-init.sh).
+     They give the lab's file-integrity events a clear meaning and severity. -->
+<group name="campusshield,syscheck,">
+  <!-- 550 = integrity checksum changed: on the account files this means users changed -->
+  <rule id="100100" level="10">
+    <if_sid>550</if_sid>
+    <field name="file">^/etc/passwd$|^/etc/shadow$|^/etc/group$</field>
+    <description>User accounts changed (account files modified)</description>
+    <mitre>
+      <id>T1136</id>
+    </mitre>
+  </rule>
+
+  <!-- 554 = file added: anything new on the anonymous FTP share came from outside -->
+  <rule id="100101" level="8">
+    <if_sid>554</if_sid>
+    <field name="file">^/var/ftp</field>
+    <description>File uploaded to the anonymous FTP share</description>
+  </rule>
+</group>

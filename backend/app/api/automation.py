@@ -1,15 +1,19 @@
-"""Machine-to-machine endpoints for n8n, authenticated with the service API key
-(header X-API-Key), never with a user session."""
+"""Machine-to-machine endpoints for n8n and the Wazuh manager, authenticated with the
+service API key (header X-API-Key), never with a user session."""
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from typing import Annotated, Any
+
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Response, status
 
 from app.api.deps import DbSession, require_service_key
 from app.core.config import get_settings
+from app.models import Alert
 from app.schemas.alert import AutomationScan, DeliveryReport
 from app.schemas.scan import ScanOut
 from app.services import audit
 from app.services import scans as scan_service
 from app.services.alerts import notify as notifier
+from app.services.alerts import wazuh
 from app.services.scanner.scope import ScopeError
 
 router = APIRouter(
@@ -51,3 +55,28 @@ def delivery_report(body: DeliveryReport, db: DbSession) -> Response:
         )  # fmt: skip
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+def _notify_later(alert_id: int) -> None:
+    """After the response: Wazuh should not wait for n8n."""
+    with scan_service.session_factory() as db:
+        alert = db.get(Alert, alert_id)
+        if alert is not None:
+            notifier.notify(db, [alert])
+            db.commit()
+
+
+@router.post("/wazuh", status_code=status.HTTP_202_ACCEPTED)
+def wazuh_alert(
+    background: BackgroundTasks,
+    db: DbSession,
+    event: Annotated[dict[str, Any], Body()],
+) -> dict:
+    """One alert from the Wazuh manager (integration custom-campusshield)."""
+    if not isinstance(event.get("rule"), dict) or not isinstance(event.get("agent"), dict):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Not a Wazuh alert")
+    alert, created = wazuh.ingest(db, event)
+    db.commit()
+    if created:
+        background.add_task(_notify_later, alert.id)
+    return {"alert_id": alert.id, "created": created, "count": alert.payload.get("count", 1)}

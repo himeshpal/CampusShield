@@ -65,6 +65,7 @@ class NotificationSettings(BaseModel):
     webhook_host: str | None  # e.g. "n8n:5678" (never the secret)
     app_url: str
     channels: dict[str, dict]  # last delivery result reported by n8n per channel
+    wazuh: dict | None = None  # last event forwarded by the Wazuh manager
 
 
 class NotificationSettingsUpdate(BaseModel):

@@ -101,9 +101,14 @@ def test_report_content_covers_the_lab_findings(demo, db):
     assert upgrade.priority == "critical" and "Apache httpd 2.4.49" in upgrade.action
     assert any("172.25.0.66" in line for line in data.narrative())
 
+    assert data.open_alerts_total == 1 and data.open_alerts[0].kind == "new_device"
+    assert any("1 alert is unresolved" in line for line in data.narrative())
+
     html = render_html(data)
     for text in ("RPT-0042", "Lab audit", "Priority recommendations", "CVE-2021-41773",
-                 "172.25.0.66", "Scope and methodology", "Asset details"):  # fmt: skip
+                 "172.25.0.66", "Scope and methodology", "Asset details",
+                 "Open alerts and security events",
+                 "Unregistered device at 172.25.0.66"):  # fmt: skip
         assert text in html
 
 

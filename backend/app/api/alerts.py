@@ -26,6 +26,7 @@ from app.schemas.alert import (
 )
 from app.services import audit
 from app.services.alerts import notify as notifier
+from app.services.alerts import wazuh
 from app.services.alerts.detect import SEVERITIES, UNRESOLVED
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
@@ -210,6 +211,7 @@ def _settings(db: Session) -> NotificationSettings:
         webhook_host=urlparse(url).netloc if url else None,
         app_url=s.app_url,
         channels=notifier.channel_status(db),
+        wazuh=wazuh.status(db),
     )
 
 

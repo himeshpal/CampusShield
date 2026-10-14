@@ -44,7 +44,8 @@ function SettingsTabs({ userId, isAdmin }: { userId: number; isAdmin: boolean })
       onValueChange={(v) => router.replace(v === fallback ? "/settings" : `/settings?tab=${v}`, { scroll: false })}
       className="gap-4"
     >
-      <TabsList>
+      {/* five tabs are wider than a phone: the bar scrolls instead of the page */}
+      <TabsList className="max-w-full justify-start overflow-x-auto">
         {isAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
         <TabsTrigger value="audit">Audit log</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>

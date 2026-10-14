@@ -2,6 +2,7 @@
 
 import pytest
 
+from app.core.config import get_settings
 from app.services.scanner.parser import parse_nmap_xml
 from app.services.scanner.profiles import PROFILES
 from app.services.scanner.runner import ScanCancelled, run_nmap
@@ -15,7 +16,8 @@ LAB_TARGETS = [
     "172.25.0.40",
     "172.25.0.66",
 ]
-EXCLUDE = ["172.25.0.5", "172.25.0.1"]
+# scanner itself, Docker gateway, Wazuh manager (from SCAN_EXCLUDE in docker-compose.yml)
+EXCLUDE = get_settings().scan_exclude_list
 
 
 @pytest.mark.lab

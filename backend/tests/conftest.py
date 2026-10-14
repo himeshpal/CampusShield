@@ -14,6 +14,7 @@ from app.core.config import get_settings
 from app.core.db import Base, get_db
 from app.main import app
 from app.services import scans as scan_service
+from app.services.alerts import notify
 from app.services.seed import seed
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -80,3 +81,19 @@ def admin_client(db) -> TestClient:
 def auditor_client(db) -> TestClient:
     s = get_settings()
     return _login(s.auditor_email, s.auditor_password)
+
+
+@pytest.fixture
+def webhook(monkeypatch):
+    """n8n stand-in: records every event the backend posts."""
+    calls: list[dict] = []
+
+    def post(url, payload, headers):
+        calls.append({"url": url, "payload": payload, "headers": headers})
+        return True, None
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "n8n_webhook_url", "http://n8n:5678/webhook/campusshield-events")
+    monkeypatch.setattr(settings, "n8n_webhook_secret", "s3cret")
+    monkeypatch.setattr(notify, "post_webhook", post)
+    return calls

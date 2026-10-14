@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.models import Asset, ChecklistEntry, ChecklistItem, Scan, User
+from app.models import Alert, Asset, ChecklistEntry, ChecklistItem, Scan, User
 from app.models.base import as_utc, utcnow
 from app.services.report.recommendations import Recommendation, recommend
 from app.services.risk import rules
@@ -119,6 +119,17 @@ class ControlCoverage:
 
 
 @dataclass
+class OpenAlert:
+    kind: str
+    severity: str
+    status: str
+    title: str
+    message: str
+    created_at: datetime
+    count: int
+
+
+@dataclass
 class ScanInfo:
     id: int
     profile: str
@@ -152,6 +163,8 @@ class ReportData:
     control_gaps: list[tuple[AssetReport, str]]
     recommendations: list[Recommendation]
     trend: list[TrendPoint]
+    open_alerts: list["OpenAlert"] = field(default_factory=list)
+    open_alerts_total: int = 0
 
     @property
     def assessed(self) -> list[AssetReport]:
@@ -188,6 +201,7 @@ class ReportData:
             "bands": self.bands,
             "vulnerabilities": len(self.vulnerabilities),
             "recommendations": len(self.recommendations),
+            "open_alerts": self.open_alerts_total,
             "checklist_answered": self.checklist_answered,
             "checklist_total": self.checklist_total,
             "latest_scan_id": self.latest_scan.id if self.latest_scan else None,
@@ -234,6 +248,16 @@ class ReportData:
                 else "no gaps recorded yet"
             )
             lines.append(f"The security checklist is {pct}% complete, with {gaps}.")
+        if self.open_alerts_total:
+            urgent = sum(a.severity in ("high", "critical") for a in self.open_alerts)
+            hosts = sum(a.kind == "wazuh" for a in self.open_alerts)
+            n = self.open_alerts_total
+            lines.append(
+                f"{plural(n, 'alert')} {'is' if n == 1 else 'are'} unresolved"
+                f" ({urgent} high or critical"
+                + (f", {plural(hosts, 'host security event')} from Wazuh" if hosts else "")
+                + ")."
+            )
         return lines
 
 
@@ -286,6 +310,31 @@ def _asset_report(
             if asset.status == "registered"
         },
     )
+
+
+SEVERITY_RANK = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+MAX_ALERTS_LISTED = 25
+
+
+def _open_alerts(db: Session) -> dict:
+    """Unresolved alerts (scan changes and Wazuh host events), most severe first."""
+    rows = db.scalars(select(Alert).where(Alert.status.in_(("open", "acknowledged")))).all()
+    rows = sorted(rows, key=lambda a: (SEVERITY_RANK.get(a.severity, 9), -a.id))
+    return {
+        "open_alerts_total": len(rows),
+        "open_alerts": [
+            OpenAlert(
+                kind=a.kind,
+                severity=a.severity,
+                status=a.status,
+                title=a.title,
+                message=a.message,
+                created_at=as_utc(a.created_at),
+                count=(a.payload or {}).get("count", 1),
+            )
+            for a in rows[:MAX_ALERTS_LISTED]
+        ],
+    }
 
 
 def collect(
@@ -386,4 +435,5 @@ def collect(
         control_gaps=gaps,
         recommendations=recommend(assessed),
         trend=campus_trend(db),
+        **_open_alerts(db),
     )

@@ -196,7 +196,7 @@ def set_entries(
     """Answer several controls of one asset at once (one rescore, one audit entry)."""
     keys = [e.item_key for e in body.entries]
     if len(keys) != len(set(keys)):
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Each control at most once")
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Each control at most once")
     updates = [
         (e.item_key, EntryUpdate(status=e.status, evidence=e.evidence)) for e in body.entries
     ]

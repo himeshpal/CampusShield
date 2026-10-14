@@ -201,3 +201,52 @@ a standard audit.
 **Environment note:** Docker Desktop stopped once during this phase with "WSL update
 required" while Windows updated WSL to 3.0.3 in the background; `stack.ps1 down` / `up`
 was enough to recover.
+
+---
+
+# Addendum: Phase 8 (Wazuh, polish and final system test)
+
+**Final results (all phases):** backend **300 / 300** (incl. live lab checks with the Wazuh
+manager running), E2E **43 / 43**, lint / format / type-check clean, `next build` succeeds
+(14 routes). Layout audit: 14 pages × 4 widths (1440, 1280, 768, 390 px) × light and dark
+mode = 112 page views, **0 console errors, 0 page errors**, 0 horizontal overflow after
+fix D-23. Access-control sweep (`test_access_control.py`, generated from the OpenAPI
+schema): every one of the API operations returns 401 without credentials, every admin
+write returns 403 for the auditor, and the machine endpoints refuse a user session.
+
+**Footprint (whole stack incl. n8n, Mailpit and the Wazuh manager):** about 1.2 GB RAM;
+Wazuh manager 282 MB, n8n 410 MB, backend 300 MB, lab devices ≤ 60 MB each.
+
+**Live SIEM check:** the rogue Raspberry Pi (.66) tried 10 SSH passwords on the lab PC →
+Wazuh rule 51007 "Dropbear: brute force attempt" (level 10) → CampusShield alert
+"Dropbear: brute force attempt on CS-0004 Lab 3 Workstation 01" (high) with the source
+resolved to "CS-0007, an unregistered device"; e-mailed through n8n. The nine individual
+bad-password events (rule 51003, level 5) became one low alert with "9 events". A new
+account on the lab PC → "User accounts changed" (local rule 100100, high) listing
+/etc/passwd, /etc/shadow and /etc/group; a file dropped on the anonymous FTP share →
+"File uploaded to the anonymous FTP share" (local rule 100101, medium).
+
+| ID | Check | Result |
+|---|---|---|
+| TC-55 | Wazuh alert tied to the asset of the agent's IP; attack source resolved in the inventory | Pass |
+| TC-56 | Rule levels map to severities (5 low, 7 medium, 10 high, 12+ critical) | Pass |
+| TC-57 | Repeats of a rule on a host within 15 min merged with a counter; not pushed again | Pass |
+| TC-58 | File-integrity events on several files merged into one alert listing every path | Pass |
+| TC-59 | Agent with an unknown address still produces an alert (no asset) | Pass |
+| TC-60 | Wazuh endpoint: 401 without / with a wrong service key, 401 with an admin session, 422 for non-Wazuh JSON | Pass |
+| TC-61 | Open alerts and Wazuh events listed in the PDF report and on the asset page | Pass |
+| TC-62 | Agent re-enrols automatically after the manager or the lab PC is re-created | Pass (live) |
+
+## Defects found and fixed during Phase 8
+
+| ID | Defect | Root cause | Fix |
+|---|---|---|---|
+| D-21 | Dropbear log lines matched no Wazuh decoder | busybox syslogd writes a facility field ("authpriv.warn") that the syslog pre-decoder does not expect | rsyslog with the traditional file format on the lab PC |
+| D-22 | Adding a user raised no alert until the hourly scan | Wazuh real-time FIM watches directories, not single files | Watch /etc in real time, restricted to passwd / shadow / group |
+| D-23 | Settings page 9 px wider than a 390 px phone | Fifth tab (Notifications) made the tab bar too wide | Tab bar scrolls inside itself |
+| D-24 | The manager's own CIS assessment arrived as campus alerts | SCA / rootcheck / FIM enabled on the manager by default | Disabled on the manager (infrastructure, not a monitored campus device) |
+
+**Not a defect (recorded to save time later):** intermittent 401s seen while testing with
+curl were caused by the Git Bash setting `MSYS_NO_PATHCONV=1`, which also disables the
+translation of the cookie-file path, so curl sent no valid cookie. Confirmed by sending the
+same cookie with and without the setting (401 / 200).
